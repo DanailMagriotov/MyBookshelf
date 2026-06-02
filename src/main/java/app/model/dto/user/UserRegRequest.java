@@ -3,7 +3,6 @@ package app.model.dto.user;
 import app.model.entity.user.Region;
 import lombok.Builder;
 import lombok.Data;
-import org.antlr.v4.runtime.misc.NotNull;
 
 @Builder
 @Data
