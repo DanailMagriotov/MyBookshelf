@@ -1,9 +1,12 @@
 package app.model.entity.user;
 
 
+import app.model.entity.book.Book;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -40,4 +43,7 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private Region region;
+
+    @OneToMany(mappedBy = "owner")
+    private List<Book> books = new ArrayList<>();
 }
