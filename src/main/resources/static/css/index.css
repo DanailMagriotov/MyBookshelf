@@ -1,0 +1,79 @@
+*:after, *:before {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    height: 100vh;
+    width: 100%;
+    overflow: hidden;
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    position: relative;
+
+    font-family: Georgia, serif;
+}
+
+.button-container {
+    position: absolute;
+
+    top: 62%;
+    left: 35.5%;
+
+    transform: translate(-50%, -50%);
+
+    display: flex;
+    gap: 25px;
+}
+
+.btn {
+    width: 180px;
+    height: 60px;
+
+    border-radius: 12px;
+    cursor: pointer;
+
+    font-size: 25px;
+    font-weight: 500;
+
+    transition: all 0.25s ease;
+
+    font-family: "Trebuchet MS", sans-serif;
+}
+
+.login-btn {
+    background: #3b210f;
+    color: white;
+    border: none;
+}
+
+.login-btn:hover {
+    background: #51301b;
+    transform: translateY(-2px);
+}
+
+.register-btn {
+    background: rgba(255, 255, 255, 0.2);
+    color: #3b210f;
+
+    border: 1px solid #b68f69;
+}
+
+.register-btn:hover {
+    background: white;
+    transform: translateY(-2px);
+}
+
+footer {
+    position: absolute;
+
+    left: 20px;
+    bottom: 15px;
+
+    color: #6d5848;
+    font-size: 14px;
+}
