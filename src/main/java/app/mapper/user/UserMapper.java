@@ -1,6 +1,6 @@
 package app.mapper.user;
 
-import app.model.dto.user.AccountSettingsUpdateRequest;
+import app.model.dto.user.MyProfileUpdateRequest;
 import app.model.dto.user.UserRegRequest;
 import app.model.dto.user.UserSession;
 import app.model.entity.user.User;
@@ -27,12 +27,12 @@ public class UserMapper {
                 .build();
     }
 
-    public static AccountSettingsUpdateRequest toAccountSettingsRequest(User user) {
+    public static MyProfileUpdateRequest toMyProfileUpdateRequest(User user) {
         if (user == null) {
             return null;
         }
 
-        return AccountSettingsUpdateRequest.builder()
+        return MyProfileUpdateRequest.builder()
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .email(user.getEmail())

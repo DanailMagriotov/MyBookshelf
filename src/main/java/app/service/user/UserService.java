@@ -4,7 +4,7 @@ import app.exception.EmailAlreadyExistsException;
 import app.exception.NotAuthenticatedException;
 import app.exception.UsernameAlreadyExistsException;
 import app.mapper.user.UserMapper;
-import app.model.dto.user.AccountSettingsUpdateRequest;
+import app.model.dto.user.MyProfileUpdateRequest;
 import app.model.dto.user.UserRegRequest;
 import app.model.dto.user.UserSession;
 import app.model.entity.user.User;
@@ -52,7 +52,7 @@ public class UserService {
     }
 
     @Transactional
-    public UserSession updateAccountSettings(UUID userId, AccountSettingsUpdateRequest request) {
+    public UserSession updateMyProfile(UUID userId, MyProfileUpdateRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(NotAuthenticatedException::new);
 

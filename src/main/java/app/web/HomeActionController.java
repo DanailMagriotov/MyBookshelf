@@ -44,9 +44,9 @@ public class HomeActionController {
         return "redirect:/home";
     }
 
-    @GetMapping("/account-settings")
-    public String accountSettings(HttpSession session) {
+    @GetMapping("/my-profile")
+    public String myProfile(HttpSession session) {
         authenticationGuard.requireAuthenticated(userSessionService.get(session).orElse(null));
-        return "redirect:/account-settings";
+        return "redirect:/my-profile";
     }
 }

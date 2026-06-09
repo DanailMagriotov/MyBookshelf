@@ -3,7 +3,7 @@ package app.web;
 import app.exception.EmailAlreadyExistsException;
 import app.exception.NotAuthenticatedException;
 import app.mapper.user.UserMapper;
-import app.model.dto.user.AccountSettingsUpdateRequest;
+import app.model.dto.user.MyProfileUpdateRequest;
 import app.model.dto.user.UserSession;
 import app.model.entity.user.Region;
 import app.repository.user.UserRepository;
@@ -26,16 +26,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
-@RequestMapping("/account-settings")
-public class AccountSettingsController {
+@RequestMapping("/my-profile")
+public class MyProfileController {
 
     private final UserService userService;
     private final UserSessionService userSessionService;
     private final UserRepository userRepository;
 
-    public AccountSettingsController(UserService userService,
-                                       UserSessionService userSessionService,
-                                       UserRepository userRepository) {
+    public MyProfileController(UserService userService,
+                               UserSessionService userSessionService,
+                               UserRepository userRepository) {
         this.userService = userService;
         this.userSessionService = userSessionService;
         this.userRepository = userRepository;
@@ -47,42 +47,42 @@ public class AccountSettingsController {
     }
 
     @GetMapping
-    public String accountSettings(HttpSession session, Model model) {
+    public String myProfile(HttpSession session, Model model) {
         UserSession userSession = requireUserSession(session);
 
-        if (!model.containsAttribute("accountSettingsRequest")) {
+        if (!model.containsAttribute("myProfileRequest")) {
             userRepository.findById(userSession.getId())
-                    .map(UserMapper::toAccountSettingsRequest)
-                    .ifPresent(request -> model.addAttribute("accountSettingsRequest", request));
+                    .map(UserMapper::toMyProfileUpdateRequest)
+                    .ifPresent(request -> model.addAttribute("myProfileRequest", request));
         }
 
         model.addAttribute("username", userSession.getUsername());
-        return "account-settings";
+        return "my-profile";
     }
 
     @PostMapping
-    public String updateAccountSettings(@Valid @ModelAttribute("accountSettingsRequest") AccountSettingsUpdateRequest request,
-                                        BindingResult bindingResult,
-                                        HttpSession session,
-                                        Model model,
-                                        RedirectAttributes redirectAttributes) {
+    public String updateMyProfile(@Valid @ModelAttribute("myProfileRequest") MyProfileUpdateRequest request,
+                                  BindingResult bindingResult,
+                                  HttpSession session,
+                                  Model model,
+                                  RedirectAttributes redirectAttributes) {
         UserSession userSession = requireUserSession(session);
         model.addAttribute("username", userSession.getUsername());
 
         validatePasswordFields(request, bindingResult);
 
         if (bindingResult.hasErrors()) {
-            return "account-settings";
+            return "my-profile";
         }
 
         try {
-            UserSession updatedSession = userService.updateAccountSettings(userSession.getId(), request);
+            UserSession updatedSession = userService.updateMyProfile(userSession.getId(), request);
             userSessionService.save(session, updatedSession);
             redirectAttributes.addFlashAttribute("successMessage", "my profile updated successfully.");
-            return "redirect:/account-settings";
+            return "redirect:/my-profile";
         } catch (EmailAlreadyExistsException ex) {
             bindingResult.rejectValue("email", "email.exists", "Email already exists");
-            return "account-settings";
+            return "my-profile";
         }
     }
 
@@ -107,7 +107,7 @@ public class AccountSettingsController {
                 .orElseThrow(NotAuthenticatedException::new);
     }
 
-    private void validatePasswordFields(AccountSettingsUpdateRequest request, BindingResult bindingResult) {
+    private void validatePasswordFields(MyProfileUpdateRequest request, BindingResult bindingResult) {
         boolean hasPassword = StringUtils.hasText(request.getPassword());
         boolean hasConfirmPassword = StringUtils.hasText(request.getConfirmPassword());
 

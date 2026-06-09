@@ -1,5 +1,5 @@
 .scene {
-    /* Light panel bounds on account-settings-background.png (1672×941) */
+    /* Light panel bounds on my-profile-background.png (1672×941) */
     --light-left: 56%;
     --light-right: 3.5%;
     --light-top: 10%;
@@ -19,7 +19,7 @@
     container-name: scene;
 }
 
-.account-settings-panel {
+.my-profile-panel {
     position: absolute;
     top: var(--light-top);
     right: var(--light-right);
@@ -30,7 +30,7 @@
     box-sizing: border-box;
 }
 
-.form-container.form-container--account-settings {
+.form-container.form-container--my-profile {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -49,15 +49,15 @@
     align-items: center;
 }
 
-.form-container--account-settings .auth-title,
-.form-container--account-settings .alert,
-.form-container--account-settings .account-settings-form,
-.form-container--account-settings .delete-account-btn,
-.form-container--account-settings .auth-link {
+.form-container--my-profile .auth-title,
+.form-container--my-profile .alert,
+.form-container--my-profile .my-profile-form,
+.form-container--my-profile .delete-account-btn,
+.form-container--my-profile .auth-link {
     width: 100%;
 }
 
-.form-container--account-settings .account-settings-form {
+.form-container--my-profile .my-profile-form {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -76,34 +76,34 @@
     grid-column: 1 / -1;
 }
 
-.form-container--account-settings .form-group {
+.form-container--my-profile .form-group {
     min-width: 0;
 }
 
-.form-container--account-settings .auth-form {
+.form-container--my-profile .auth-form {
     gap: var(--form-gap);
 }
 
-.form-container--account-settings .auth-title {
+.form-container--my-profile .auth-title {
     margin-bottom: clamp(10px, 2cqh, 16px);
     font-size: var(--title-size);
     text-align: center;
 }
 
-.form-container--account-settings .form-group input,
-.form-container--account-settings .form-group select {
+.form-container--my-profile .form-group input,
+.form-container--my-profile .form-group select {
     height: var(--input-height);
     font-size: var(--input-font);
     padding: 0 clamp(12px, 2.5cqw, 18px);
     border-radius: clamp(8px, 1.2vw, 10px);
 }
 
-.form-container--account-settings .form-group select {
+.form-container--my-profile .form-group select {
     padding-right: clamp(32px, 6cqw, 42px);
     background-position: right clamp(12px, 2.5cqw, 18px) center;
 }
 
-.form-container--account-settings .submit-btn {
+.form-container--my-profile .submit-btn {
     height: var(--btn-height);
     font-size: var(--btn-font);
     margin-top: clamp(2px, 0.8cqh, 6px);
@@ -217,17 +217,17 @@
     transform: translateY(-1px);
 }
 
-.form-container--account-settings .auth-link {
+.form-container--my-profile .auth-link {
     margin-top: clamp(8px, 1.5cqh, 12px);
     font-size: clamp(13px, min(1.3vw, 2.2cqh), 15px);
     text-align: center;
 }
 
-.form-container--account-settings .field-error {
+.form-container--my-profile .field-error {
     font-size: clamp(11px, min(1.2vw, 2cqh), 13px);
 }
 
-.form-container--account-settings .alert {
+.form-container--my-profile .alert {
     margin-bottom: clamp(8px, 1.5cqh, 14px);
     padding: clamp(8px, 1.5cqh, 10px) clamp(12px, 2.5cqw, 18px);
     font-size: clamp(12px, min(1.2vw, 2.2cqh), 14px);
@@ -288,7 +288,7 @@
 }
 
 @media (max-height: 780px) {
-    .form-container.form-container--account-settings {
+    .form-container.form-container--my-profile {
         max-height: 100%;
     }
 }
@@ -355,37 +355,37 @@
 }
 
 @media (max-height: 780px) {
-    .form-container.form-container--account-settings {
+    .form-container.form-container--my-profile {
         transform: translate(-50%, -50%);
     }
 }
 
 @media (max-height: 680px) {
-    .form-container.form-container--account-settings {
+    .form-container.form-container--my-profile {
         transform: translate(-50%, -50%);
     }
 }
 
 @media (max-height: 580px) {
-    .form-container.form-container--account-settings {
+    .form-container.form-container--my-profile {
         transform: translate(-50%, -50%);
     }
 }
 
 @media (max-width: 480px) and (max-height: 780px) {
-    .form-container.form-container--account-settings {
+    .form-container.form-container--my-profile {
         transform: translate(-50%, -50%);
     }
 }
 
 @media (max-width: 480px) and (max-height: 680px) {
-    .form-container.form-container--account-settings {
+    .form-container.form-container--my-profile {
         transform: translate(-50%, -50%);
     }
 }
 
 @media (max-width: 480px) and (max-height: 580px) {
-    .form-container.form-container--account-settings {
+    .form-container.form-container--my-profile {
         transform: translate(-50%, -50%);
     }
 }

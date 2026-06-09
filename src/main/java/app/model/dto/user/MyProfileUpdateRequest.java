@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AccountSettingsUpdateRequest {
+public class MyProfileUpdateRequest {
 
     @Size(max = 50, message = "First name must be at most 50 characters")
     private String firstName;
