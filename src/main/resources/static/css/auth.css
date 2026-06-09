@@ -139,6 +139,10 @@ body {
     font-family: "Trebuchet MS", sans-serif;
 }
 
+.client-field-error[hidden] {
+    display: none;
+}
+
 .form-group input,
 .form-group select {
     display: block;

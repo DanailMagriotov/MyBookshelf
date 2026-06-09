@@ -29,7 +29,8 @@ public class BeanConfiguration {
                                 "/login",
                                 "/register",
                                 "/css/**",
-                                "/images/**"
+                                "/images/**",
+                                "/js/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
