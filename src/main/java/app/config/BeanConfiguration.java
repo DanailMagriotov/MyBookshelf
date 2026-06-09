@@ -19,7 +19,7 @@ public class BeanConfiguration {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
-                                                   MyUserDetailsService userDetailsService) throws Exception {
+                                                   MyUserDetailsService userDetailsService) {
 
         http
                 .userDetailsService(userDetailsService)
