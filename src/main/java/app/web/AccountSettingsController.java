@@ -78,7 +78,7 @@ public class AccountSettingsController {
         try {
             UserSession updatedSession = userService.updateAccountSettings(userSession.getId(), request);
             userSessionService.save(session, updatedSession);
-            redirectAttributes.addFlashAttribute("successMessage", "Account settings updated successfully.");
+            redirectAttributes.addFlashAttribute("successMessage", "my profile updated successfully.");
             return "redirect:/account-settings";
         } catch (EmailAlreadyExistsException ex) {
             bindingResult.rejectValue("email", "email.exists", "Email already exists");
