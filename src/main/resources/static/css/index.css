@@ -1,43 +1,81 @@
-*:after, *:before {
+*,
+*::before,
+*::after {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+html,
 body {
-    height: 100vh;
     width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
     overflow: hidden;
+}
 
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+html {
+    background-color: #e7e1bc;
+}
 
+body {
     position: relative;
-
+    min-height: 100vh;
+    min-height: 100dvh;
+    background-color: #e7e1bc;
     font-family: Georgia, serif;
+}
+
+.scene {
+    --image-ratio: 1672 / 941;
+
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    aspect-ratio: var(--image-ratio);
+    min-width: 100%;
+    min-height: 100%;
+
+    overflow: hidden;
+}
+
+.page-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+    object-position: center center;
+    transform: scale(1.04);
+
+    pointer-events: none;
 }
 
 .button-container {
     position: absolute;
-
     top: 62%;
     left: 35.5%;
-
     transform: translate(-50%, -50%);
+    z-index: 1;
 
     display: flex;
-    gap: 25px;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: clamp(10px, 1.5vw, 25px);
 }
 
 .btn {
-    width: 180px;
-    height: 60px;
+    width: clamp(110px, 10.8vw, 180px);
+    height: clamp(44px, 6.4vh, 60px);
 
     border-radius: 12px;
     cursor: pointer;
 
-    font-size: 25px;
+    font-size: clamp(14px, 1.5vw, 25px);
     font-weight: 500;
 
     transition: all 0.25s ease;
@@ -59,7 +97,6 @@ body {
 .register-btn {
     background: rgba(255, 255, 255, 0.2);
     color: #3b210f;
-
     border: 1px solid #b68f69;
 }
 
@@ -69,11 +106,40 @@ body {
 }
 
 footer {
-    position: absolute;
-
+    position: fixed;
+    z-index: 2;
     left: 20px;
     bottom: 15px;
-
     color: #6d5848;
     font-size: 14px;
+}
+
+@media (max-width: 480px) {
+    .button-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .btn {
+        width: clamp(130px, 38vw, 180px);
+    }
+
+    footer {
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-size: 12px;
+    }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+    .button-container {
+        flex-direction: row;
+    }
+
+    .btn {
+        width: clamp(100px, 14vw, 150px);
+        height: 44px;
+        font-size: 16px;
+    }
 }
