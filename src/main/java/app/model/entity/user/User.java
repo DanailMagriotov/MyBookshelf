@@ -45,5 +45,6 @@ public class User {
     private Region region;
 
     @OneToMany(mappedBy = "owner")
+    @Builder.Default
     private List<Book> books = new ArrayList<>();
 }

@@ -1,0 +1,391 @@
+.scene {
+    /* Light panel bounds on account-settings-background.png (1672×941) */
+    --light-left: 56%;
+    --light-right: 3.5%;
+    --light-top: 10%;
+    --light-bottom: 8%;
+
+    --panel-width: min(100%, 520px);
+    --form-gap: clamp(8px, 1.8cqh, 14px);
+    --col-gap: clamp(10px, 2cqw, 16px);
+    --input-height: clamp(38px, min(4.8vh, 6.5cqh), 48px);
+    --input-font: clamp(14px, min(1.4vw, 2.4cqh), 16px);
+    --title-size: clamp(18px, min(2.6vw, 3.8cqh), 30px);
+    --btn-height: clamp(44px, min(5vh, 7cqh), 52px);
+    --btn-font: clamp(16px, min(1.8vw, 2.8cqh), 20px);
+    --label-size: clamp(12px, min(1.2vw, 2.2cqh), 14px);
+
+    container-type: size;
+    container-name: scene;
+}
+
+.account-settings-panel {
+    position: absolute;
+    top: var(--light-top);
+    right: var(--light-right);
+    bottom: var(--light-bottom);
+    left: var(--light-left);
+    z-index: 1;
+
+    box-sizing: border-box;
+}
+
+.form-container.form-container--account-settings {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    width: var(--panel-width);
+    max-width: calc(100% - 16px);
+    max-height: calc(100% - 16px);
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 0 clamp(6px, 1.5cqw, 12px);
+    -webkit-overflow-scrolling: touch;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.form-container--account-settings .auth-title,
+.form-container--account-settings .alert,
+.form-container--account-settings .account-settings-form,
+.form-container--account-settings .delete-account-btn,
+.form-container--account-settings .auth-link {
+    width: 100%;
+}
+
+.form-container--account-settings .account-settings-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--form-gap);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--col-gap);
+    row-gap: var(--form-gap);
+    width: 100%;
+}
+
+.form-group--full {
+    grid-column: 1 / -1;
+}
+
+.form-container--account-settings .form-group {
+    min-width: 0;
+}
+
+.form-container--account-settings .auth-form {
+    gap: var(--form-gap);
+}
+
+.form-container--account-settings .auth-title {
+    margin-bottom: clamp(10px, 2cqh, 16px);
+    font-size: var(--title-size);
+    text-align: center;
+}
+
+.form-container--account-settings .form-group input,
+.form-container--account-settings .form-group select {
+    height: var(--input-height);
+    font-size: var(--input-font);
+    padding: 0 clamp(12px, 2.5cqw, 18px);
+    border-radius: clamp(8px, 1.2vw, 10px);
+}
+
+.form-container--account-settings .form-group select {
+    padding-right: clamp(32px, 6cqw, 42px);
+    background-position: right clamp(12px, 2.5cqw, 18px) center;
+}
+
+.form-container--account-settings .submit-btn {
+    height: var(--btn-height);
+    font-size: var(--btn-font);
+    margin-top: clamp(2px, 0.8cqh, 6px);
+    border-radius: clamp(10px, 1.4vw, 12px);
+    width: 100%;
+    max-width: 100%;
+}
+
+.delete-account-btn {
+    height: var(--btn-height);
+    margin-top: clamp(6px, 1.2cqh, 10px);
+    padding: 0 clamp(12px, 2.5cqw, 18px);
+
+    border-radius: clamp(10px, 1.4vw, 12px);
+    border: 1px solid rgba(180, 40, 40, 0.45);
+    cursor: pointer;
+
+    background: rgba(180, 40, 40, 0.1);
+    color: #7a1f1f;
+
+    font-size: var(--btn-font);
+    font-weight: 500;
+    font-family: "Trebuchet MS", sans-serif;
+
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.delete-account-btn:hover {
+    background: rgba(180, 40, 40, 0.18);
+    border-color: rgba(180, 40, 40, 0.65);
+    transform: translateY(-1px);
+}
+
+.delete-dialog {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.delete-dialog[hidden] {
+    display: none;
+}
+
+.delete-dialog__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(59, 33, 15, 0.45);
+}
+
+.delete-dialog__panel {
+    position: relative;
+    z-index: 1;
+    width: min(100%, 360px);
+    padding: clamp(18px, 3cqw, 24px);
+
+    border-radius: 12px;
+    border: 1px solid rgba(180, 40, 40, 0.35);
+    background: rgba(255, 250, 245, 0.97);
+    box-shadow: 0 12px 32px rgba(59, 33, 15, 0.2);
+}
+
+.delete-dialog__message {
+    margin-bottom: clamp(14px, 2.5cqh, 20px);
+    color: #3b210f;
+    font-size: clamp(14px, min(1.5vw, 2.4cqh), 16px);
+    line-height: 1.45;
+    text-align: center;
+    font-family: "Trebuchet MS", sans-serif;
+}
+
+.delete-dialog__actions {
+    display: flex;
+    gap: clamp(10px, 2cqw, 14px);
+}
+
+.delete-dialog__btn {
+    flex: 1;
+    height: clamp(40px, min(4.8vh, 6.5cqh), 46px);
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+
+    font-size: clamp(15px, min(1.6vw, 2.6cqh), 17px);
+    font-weight: 500;
+    font-family: "Trebuchet MS", sans-serif;
+
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.delete-dialog__btn--confirm {
+    background: #b42828;
+    color: #fff;
+}
+
+.delete-dialog__btn--confirm:hover {
+    background: #962020;
+    transform: translateY(-1px);
+}
+
+.delete-dialog__btn--cancel {
+    background: rgba(59, 33, 15, 0.1);
+    color: #3b210f;
+}
+
+.delete-dialog__btn--cancel:hover {
+    background: rgba(59, 33, 15, 0.16);
+    transform: translateY(-1px);
+}
+
+.form-container--account-settings .auth-link {
+    margin-top: clamp(8px, 1.5cqh, 12px);
+    font-size: clamp(13px, min(1.3vw, 2.2cqh), 15px);
+    text-align: center;
+}
+
+.form-container--account-settings .field-error {
+    font-size: clamp(11px, min(1.2vw, 2cqh), 13px);
+}
+
+.form-container--account-settings .alert {
+    margin-bottom: clamp(8px, 1.5cqh, 14px);
+    padding: clamp(8px, 1.5cqh, 10px) clamp(12px, 2.5cqw, 18px);
+    font-size: clamp(12px, min(1.2vw, 2.2cqh), 14px);
+}
+
+.field-label {
+    display: block;
+    margin-bottom: clamp(4px, 0.8cqh, 6px);
+    color: #3b210f;
+    font-size: var(--label-size);
+    font-family: "Trebuchet MS", sans-serif;
+}
+
+.input-readonly {
+    background-color: rgba(255, 255, 255, 0.55) !important;
+    color: #6d5848 !important;
+    cursor: not-allowed;
+}
+
+@container scene (max-height: 340px) {
+    .scene {
+        --form-gap: clamp(5px, 1.5cqh, 8px);
+        --input-height: clamp(32px, 6cqh, 40px);
+        --input-font: clamp(12px, 2.2cqh, 14px);
+        --title-size: clamp(16px, 3.5cqh, 20px);
+        --btn-height: clamp(36px, 6.5cqh, 44px);
+        --btn-font: clamp(14px, 2.5cqh, 16px);
+    }
+
+    .scene {
+        --light-top: 8%;
+        --light-bottom: 6%;
+    }
+}
+
+@container scene (max-height: 280px) {
+    .scene {
+        --form-gap: 4px;
+        --input-height: clamp(28px, 5.5cqh, 36px);
+        --title-size: clamp(14px, 3cqh, 18px);
+        --btn-height: clamp(32px, 6cqh, 38px);
+        --btn-font: 13px;
+    }
+}
+
+@media (max-width: 900px) {
+    .scene {
+        --light-left: 57%;
+        --light-right: 2.5%;
+    }
+}
+
+@media (max-width: 640px) {
+    .scene {
+        --light-left: 58%;
+        --light-right: 2%;
+    }
+}
+
+@media (max-height: 780px) {
+    .form-container.form-container--account-settings {
+        max-height: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .scene {
+        --light-left: 59%;
+        --light-right: 1.5%;
+        --light-top: 8%;
+        --light-bottom: 6%;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-group--full {
+        grid-column: auto;
+    }
+}
+
+@media (max-width: 360px) {
+    .scene {
+        --light-left: 60%;
+        --light-right: 1%;
+    }
+}
+
+@media (max-height: 720px) {
+    .scene {
+        --input-height: clamp(36px, min(4.2vh, 5.8cqh), 44px);
+        --btn-height: clamp(40px, min(4.8vh, 6.5cqh), 48px);
+    }
+}
+
+@media (max-height: 580px) {
+    .scene {
+        --form-gap: clamp(5px, 1.2cqh, 10px);
+    }
+
+    .scene {
+        --light-top: 7%;
+        --light-bottom: 5%;
+    }
+}
+
+@media (max-width: 480px) and (max-height: 700px) {
+    .scene {
+        --input-height: clamp(32px, 5vh, 40px);
+        --title-size: clamp(16px, 3.2vw, 20px);
+    }
+}
+
+@media (max-height: 480px) and (orientation: landscape) {
+    .scene {
+        --light-left: 57%;
+        --light-right: 2%;
+        --light-top: 6%;
+        --light-bottom: 4%;
+        --form-gap: 4px;
+        --input-height: clamp(30px, 7vh, 38px);
+        --btn-height: clamp(34px, 7.5vh, 42px);
+    }
+}
+
+@media (max-height: 780px) {
+    .form-container.form-container--account-settings {
+        transform: translate(-50%, -50%);
+    }
+}
+
+@media (max-height: 680px) {
+    .form-container.form-container--account-settings {
+        transform: translate(-50%, -50%);
+    }
+}
+
+@media (max-height: 580px) {
+    .form-container.form-container--account-settings {
+        transform: translate(-50%, -50%);
+    }
+}
+
+@media (max-width: 480px) and (max-height: 780px) {
+    .form-container.form-container--account-settings {
+        transform: translate(-50%, -50%);
+    }
+}
+
+@media (max-width: 480px) and (max-height: 680px) {
+    .form-container.form-container--account-settings {
+        transform: translate(-50%, -50%);
+    }
+}
+
+@media (max-width: 480px) and (max-height: 580px) {
+    .form-container.form-container--account-settings {
+        transform: translate(-50%, -50%);
+    }
+}

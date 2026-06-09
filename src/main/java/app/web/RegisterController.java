@@ -1,5 +1,6 @@
 package app.web;
 
+import app.exception.EmailAlreadyExistsException;
 import app.exception.UsernameAlreadyExistsException;
 import app.model.dto.user.UserRegRequest;
 import app.model.entity.user.Region;
@@ -45,6 +46,9 @@ public class RegisterController {
             return "redirect:/login";
         } catch (UsernameAlreadyExistsException ex) {
             bindingResult.rejectValue("username", "username.exists", "Username already exists");
+            return "register";
+        } catch (EmailAlreadyExistsException ex) {
+            bindingResult.rejectValue("email", "email.exists", "Email already exists");
             return "register";
         }
     }

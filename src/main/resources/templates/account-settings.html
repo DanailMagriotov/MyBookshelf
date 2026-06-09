@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Settings</title>
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
+    <link rel="stylesheet" th:href="@{/css/account-settings.css}">
+</head>
+
+<body>
+
+<div class="scene">
+    <img class="page-bg"
+         th:src="@{/images/account-settings-background.png}"
+         alt="">
+
+    <div class="account-settings-panel">
+        <div class="form-container form-container--account-settings">
+        <h1 class="auth-title">Account settings</h1>
+
+        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+
+        <form class="auth-form account-settings-form" th:action="@{/account-settings}" method="post" th:object="${accountSettingsRequest}">
+            <div class="form-grid">
+                <div class="form-group form-group--full">
+                    <label class="field-label" for="username">Username</label>
+                    <input type="text" id="username" th:value="${username}" readonly class="input-readonly">
+                </div>
+
+                <div class="form-group">
+                    <label class="field-label" for="firstName">First name</label>
+                    <input type="text" id="firstName" th:field="*{firstName}">
+                    <p class="field-error" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"></p>
+                </div>
+
+                <div class="form-group">
+                    <label class="field-label" for="lastName">Last name</label>
+                    <input type="text" id="lastName" th:field="*{lastName}">
+                    <p class="field-error" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></p>
+                </div>
+
+                <div class="form-group">
+                    <label class="field-label" for="email">Email</label>
+                    <input type="text" id="email" th:field="*{email}" autocomplete="email" required>
+                    <p class="field-error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></p>
+                </div>
+
+                <div class="form-group">
+                    <label class="field-label" for="region">City</label>
+                    <select id="region" th:field="*{region}" class="region-select" required>
+                        <option value="">Select a city</option>
+                        <option th:each="region : ${regions}"
+                                th:value="${region}"
+                                th:text="${region}">
+                        </option>
+                    </select>
+                    <p class="field-error" th:if="${#fields.hasErrors('region')}" th:errors="*{region}"></p>
+                </div>
+
+                <div class="form-group">
+                    <label class="field-label" for="password">New password</label>
+                    <input type="password" id="password" th:field="*{password}">
+                    <p class="field-error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></p>
+                </div>
+
+                <div class="form-group">
+                    <label class="field-label" for="confirmPassword">Confirm password</label>
+                    <input type="password" id="confirmPassword" th:field="*{confirmPassword}">
+                    <p class="field-error" th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}"></p>
+                </div>
+            </div>
+
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <button type="submit" class="submit-btn">Save changes</button>
+        </form>
+
+        <button type="button" class="delete-account-btn" id="deleteAccountBtn">Delete account</button>
+
+        <div id="deleteAccountDialog" class="delete-dialog" hidden>
+            <div class="delete-dialog__backdrop" data-delete-dialog-dismiss></div>
+            <div class="delete-dialog__panel" role="dialog" aria-modal="true" aria-labelledby="deleteAccountDialogTitle">
+                <p id="deleteAccountDialogTitle" class="delete-dialog__message">
+                    Are you sure you want to delete your account? This action cannot be undone.
+                </p>
+                <div class="delete-dialog__actions">
+                    <button type="button" class="delete-dialog__btn delete-dialog__btn--confirm" id="deleteAccountConfirmBtn">Yes</button>
+                    <button type="button" class="delete-dialog__btn delete-dialog__btn--cancel" id="deleteAccountCancelBtn">No</button>
+                </div>
+            </div>
+        </div>
+
+        <form id="deleteAccountForm" th:action="@{/account-settings/delete}" method="post" hidden>
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        </form>
+
+        <p class="auth-link">
+            <a th:href="@{/home}">Back to home</a>
+        </p>
+        </div>
+    </div>
+</div>
+
+<footer>
+    © 2026 All rights reserved
+</footer>
+
+<script th:src="@{/js/account-settings.js}"></script>
+
+</body>
+</html>
