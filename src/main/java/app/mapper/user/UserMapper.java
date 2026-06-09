@@ -13,7 +13,7 @@ import java.util.ArrayList;
 @NoArgsConstructor
 public class UserMapper {
 
-    public static User toUserEntity(UserRegRequest userRegRequest, String encodedPassword) {
+    public static User toUserEntity(UserRegRequest userRegRequest, String encodedPassword, UserRole role) {
         if (userRegRequest == null) {
             return null;
         }
@@ -22,7 +22,7 @@ public class UserMapper {
                 .password(encodedPassword)
                 .email(userRegRequest.getEmail())
                 .region(userRegRequest.getRegion())
-                .role(UserRole.USER)
+                .role(role)
                 .books(new ArrayList<>())
                 .build();
     }

@@ -79,6 +79,21 @@
                 <span class="home-action-label">messages</span>
             </a>
 
+            <a class="home-action home-action--primary"
+               th:if="${isAdmin}"
+               th:href="@{/home/actions/users}"
+               data-home-action>
+                <span class="home-action-icon" aria-hidden="true">
+                    <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M24 26a8 8 0 1 0 0-16 8 8 0 0 0 0 16z"/>
+                        <path d="M8 52c0-8 7-14 16-14s16 6 16 14"/>
+                        <path d="M44 28a6 6 0 1 0 0-12 6 6 0 0 0 0 12z"/>
+                        <path d="M36 52c0-6 5-10 12-10"/>
+                    </svg>
+                </span>
+                <span class="home-action-label">users</span>
+            </a>
+
             <a class="home-action home-action--primary" th:href="@{/my-profile}" data-home-action>
                 <span class="home-action-icon" aria-hidden="true">
                     <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">

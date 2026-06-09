@@ -8,6 +8,7 @@ import app.model.dto.user.MyProfileUpdateRequest;
 import app.model.dto.user.UserRegRequest;
 import app.model.dto.user.UserSession;
 import app.model.entity.user.User;
+import app.model.entity.user.UserRole;
 import app.repository.book.BookRepository;
 import app.repository.booktransfer.BookTransferRepository;
 import app.repository.user.UserRepository;
@@ -47,7 +48,8 @@ public class UserService {
         }
 
         String encodedPassword = passwordEncoder.encode(userRegRequest.getPassword());
-        User userEntity = UserMapper.toUserEntity(userRegRequest, encodedPassword);
+        UserRole role = userRepository.count() == 0 ? UserRole.ADMIN : UserRole.USER;
+        User userEntity = UserMapper.toUserEntity(userRegRequest, encodedPassword, role);
         userRepository.save(userEntity);
     }
 

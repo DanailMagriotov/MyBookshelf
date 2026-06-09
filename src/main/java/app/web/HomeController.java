@@ -1,5 +1,6 @@
 package app.web;
 
+import app.model.entity.user.UserRole;
 import app.service.user.UserSessionService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
@@ -20,6 +21,7 @@ public class HomeController {
         userSessionService.get(session).ifPresent(userSession -> {
             model.addAttribute("userSession", userSession);
             model.addAttribute("username", userSession.getUsername());
+            model.addAttribute("isAdmin", userSession.getRole() == UserRole.ADMIN);
         });
         return "home";
     }

@@ -49,4 +49,10 @@ public class HomeActionController {
         authenticationGuard.requireAuthenticated(userSessionService.get(session).orElse(null));
         return "redirect:/my-profile";
     }
+
+    @GetMapping("/users")
+    public String users(HttpSession session) {
+        authenticationGuard.requireAdmin(userSessionService.get(session).orElse(null));
+        return "redirect:/home";
+    }
 }
