@@ -3,10 +3,13 @@ package app.security;
 import app.service.user.UserSessionService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.stereotype.Component;
 
+@NullMarked
 @Component
 public class UserSessionLogoutHandler implements LogoutHandler {
 
@@ -19,7 +22,7 @@ public class UserSessionLogoutHandler implements LogoutHandler {
     @Override
     public void logout(HttpServletRequest request,
                        HttpServletResponse response,
-                       Authentication authentication) {
+                       @Nullable Authentication authentication) {
         userSessionService.clear(request.getSession(false));
     }
 }

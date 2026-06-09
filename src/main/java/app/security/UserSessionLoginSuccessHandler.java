@@ -3,7 +3,6 @@ package app.security;
 import app.mapper.user.UserMapper;
 import app.repository.user.UserRepository;
 import app.service.user.UserSessionService;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.Authentication;
@@ -27,7 +26,7 @@ public class UserSessionLoginSuccessHandler implements AuthenticationSuccessHand
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
                                         HttpServletResponse response,
-                                        Authentication authentication) throws IOException, ServletException {
+                                        Authentication authentication) throws IOException {
         userRepository.findByUsername(authentication.getName())
                 .map(UserMapper::toUserSession)
                 .ifPresent(userSession -> userSessionService.save(request.getSession(), userSession));

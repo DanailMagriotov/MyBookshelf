@@ -48,7 +48,7 @@ public class UserService {
 
         String encodedPassword = passwordEncoder.encode(userRegRequest.getPassword());
         User userEntity = UserMapper.toUserEntity(userRegRequest, encodedPassword);
-        userEntity = userRepository.save(userEntity);
+        userRepository.save(userEntity);
     }
 
     @Transactional
