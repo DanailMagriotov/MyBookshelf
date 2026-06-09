@@ -1,5 +1,6 @@
 package app.web;
 
+import app.exception.UsernameAlreadyExistsException;
 import app.model.dto.user.UserRegRequest;
 import app.model.entity.user.Region;
 import app.service.user.UserService;
@@ -42,9 +43,9 @@ public class RegisterController {
             userService.register(userRegRequest);
             redirectAttributes.addFlashAttribute("successMessage", "Registration successful. Please log in.");
             return "redirect:/login";
-        } catch (RuntimeException ex) {
-            redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
-            return "redirect:/register";
+        } catch (UsernameAlreadyExistsException ex) {
+            bindingResult.rejectValue("username", "username.exists", "Username already exists");
+            return "register";
         }
     }
 

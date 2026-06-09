@@ -36,7 +36,7 @@ public class BeanConfiguration {
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/", true)
+                        .defaultSuccessUrl("/home", true)
                         .failureUrl("/login?error")
                         .permitAll()
                 )

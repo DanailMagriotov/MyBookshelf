@@ -15,13 +15,13 @@ import java.util.List;
 @NoArgsConstructor
 public class UserMapper {
 
-    public static User toUserEntity(UserRegRequest userRegRequest) {
+    public static User toUserEntity(UserRegRequest userRegRequest, String encodedPassword) {
         if (userRegRequest == null) {
             return null;
         }
         return User.builder()
                 .username(userRegRequest.getUsername())
-                .password(userRegRequest.getPassword())
+                .password(encodedPassword)
                 .email(userRegRequest.getEmail())
                 .region(userRegRequest.getRegion())
                 .role(UserRole.USER)

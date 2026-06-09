@@ -1,5 +1,6 @@
 package app.service.user;
 
+import app.exception.UsernameAlreadyExistsException;
 import app.mapper.user.UserMapper;
 import app.model.dto.user.UserDto;
 import app.model.dto.user.UserRegRequest;
@@ -7,11 +8,12 @@ import app.model.entity.user.User;
 import app.repository.user.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserService {
 
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
@@ -19,18 +21,16 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public UserDto register (UserRegRequest userRegRequest) {
-
-        userRepository.findByUsername(userRegRequest.getUsername()).ifPresent(user -> {
-            throw new RuntimeException("User with this username already exists");
-        });
+    @Transactional
+    public UserDto register(UserRegRequest userRegRequest) {
+        if (userRepository.existsByUsername(userRegRequest.getUsername())) {
+            throw new UsernameAlreadyExistsException();
+        }
 
         String encodedPassword = passwordEncoder.encode(userRegRequest.getPassword());
-        userRegRequest.setPassword(encodedPassword);
-        User userEntity = UserMapper.toUserEntity(userRegRequest);
-        userRepository.save(userEntity);
+        User userEntity = UserMapper.toUserEntity(userRegRequest, encodedPassword);
+        User savedUser = userRepository.save(userEntity);
 
-        return UserMapper.toUserDto(userEntity);
-
+        return UserMapper.toUserDto(savedUser);
     }
 }
