@@ -33,6 +33,9 @@ public class Book {
 
     private BigDecimal price;
 
+    @Column(name = "owner_label")
+    private String ownerLabel;
+
     @ManyToOne
     @JoinColumn(name = "owner_id")
     private User owner;

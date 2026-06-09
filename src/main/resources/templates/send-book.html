@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>send book</title>
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
+    <link rel="stylesheet" th:href="@{/css/send-book.css}">
+</head>
+
+<body>
+
+<div class="scene">
+    <img class="page-bg"
+         th:src="@{/images/transfer-background.png}"
+         alt="">
+
+    <div class="send-book-panel">
+        <div class="form-container form-container--send-book">
+            <h1 class="auth-title">send book</h1>
+
+            <div th:if="${successMessage}" class="alert alert-success send-book-alert" th:text="${successMessage}"></div>
+
+            <form id="send-book-form" class="auth-form send-book-form" th:action="@{/send-book}" method="post" th:object="${sendBookRequest}" novalidate>
+                <div class="send-book-fields">
+                    <div class="form-group">
+                        <label class="field-label" for="receiverUsername">Recipient username</label>
+                        <input type="text" id="receiverUsername" th:field="*{receiverUsername}">
+                        <p class="field-error" th:if="${#fields.hasErrors('receiverUsername')}" th:errors="*{receiverUsername}"></p>
+                        <p class="field-error client-field-error" data-client-error-for="receiverUsername" hidden></p>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="field-label" for="bookId">Book</label>
+                        <select id="bookId" th:field="*{bookId}" class="region-select">
+                            <option value="">Select a book</option>
+                            <option th:each="bookOption : ${bookOptions}"
+                                    th:value="${bookOption.id}"
+                                    th:text="${bookOption.label}">
+                            </option>
+                        </select>
+                        <p class="field-error" th:if="${#fields.hasErrors('bookId')}" th:errors="*{bookId}"></p>
+                        <p class="field-error client-field-error" data-client-error-for="bookId" hidden></p>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="field-label" for="returnDeadline">Return deadline</label>
+                        <input type="date" id="returnDeadline" th:field="*{returnDeadline}" th:attr="min=${minReturnDate}">
+                        <p class="field-error" th:if="${#fields.hasErrors('returnDeadline')}" th:errors="*{returnDeadline}"></p>
+                        <p class="field-error client-field-error" data-client-error-for="returnDeadline" hidden></p>
+                    </div>
+                </div>
+
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <button type="submit" class="submit-btn">Send book</button>
+            </form>
+
+            <p class="auth-link">
+                <a th:href="@{/home}">Back</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<footer>
+    © 2026 All rights reserved
+</footer>
+
+<script th:src="@{/js/auth-form-validation.js}"></script>
+
+</body>
+</html>

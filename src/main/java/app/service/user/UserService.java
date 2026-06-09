@@ -88,6 +88,13 @@ public class UserService {
         userRepository.deleteById(userId);
     }
 
+    public boolean existsByUsername(String username) {
+        if (!StringUtils.hasText(username)) {
+            return false;
+        }
+        return userRepository.existsByUsername(username.trim());
+    }
+
     private String trimToNull(String value) {
         if (!StringUtils.hasText(value)) {
             return null;

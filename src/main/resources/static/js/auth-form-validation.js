@@ -89,4 +89,19 @@
             }
         });
     }
+
+    var sendBookForm = document.getElementById('send-book-form');
+    if (sendBookForm) {
+        initAuthForm(sendBookForm, {
+            receiverUsername: function (field) {
+                return isEmpty(field) ? 'Recipient username is required' : '';
+            },
+            bookId: function (field) {
+                return isEmpty(field) ? 'Please select a book' : '';
+            },
+            returnDeadline: function (field) {
+                return isEmpty(field) ? 'Return deadline is required' : '';
+            }
+        });
+    }
 })();

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>my bookshelf</title>
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
+    <link rel="stylesheet" th:href="@{/css/my-bookshelf.css}">
+</head>
+
+<body>
+
+<div class="scene">
+    <img class="page-bg"
+         th:src="@{/images/book-list-background.png}"
+         alt="">
+
+    <div class="book-list-panel">
+        <div class="book-list-content">
+            <h1 class="book-list-title">my bookshelf</h1>
+
+            <div th:if="${successMessage}" class="alert alert-success book-list-alert" th:text="${successMessage}"></div>
+
+            <p class="book-list-counter">
+                <span class="book-list-counter-label">Books on my shelf:</span>
+                <span class="book-list-counter-value" th:text="${totalBooks}">0</span>
+            </p>
+
+            <div class="book-list-table-wrap">
+                <table class="book-list-table">
+                    <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th>Description</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Owner</th>
+                        <th>Recipient</th>
+                        <th>Return deadline</th>
+                        <th class="book-list-actions-header"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="book : ${books}">
+                        <td th:text="${book.title}">Title</td>
+                        <td th:text="${book.author}">Author</td>
+                        <td th:text="${book.description != null ? book.description : '-'}">Description</td>
+                        <td th:text="${book.category != null ? book.category : '-'}">Category</td>
+                        <td th:text="${book.price != null ? #numbers.formatDecimal(book.price, 1, 2) : '-'}">Price</td>
+                        <td th:text="${book.ownerUsername != null ? book.ownerUsername : '-'}">Owner</td>
+                        <td th:text="${book.recipientUsername}">Recipient</td>
+                        <td th:text="${book.returnDeadline != null ? #temporals.format(book.returnDeadline, 'dd MMM yyyy HH:mm') : '-'}">Return deadline</td>
+                        <td class="book-list-actions">
+                            <form th:if="${book.deletable}"
+                                  th:action="@{/my-bookshelf/delete/{id}(id=${book.id}, page=${page})}"
+                                  method="post">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                <button type="submit" class="book-delete-btn">Delete</button>
+                            </form>
+                            <form th:if="${book.returnable}"
+                                  th:action="@{/my-bookshelf/return/{id}(id=${book.id}, page=${page})}"
+                                  method="post">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                <button type="submit" class="book-return-btn">Return</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(books)}">
+                        <td class="book-list-empty" colspan="9">No books in your bookshelf yet.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <nav class="book-list-pagination" aria-label="Books pagination">
+                <a th:if="${hasPrevious}"
+                   class="book-list-link"
+                   th:href="@{/my-bookshelf(page=${page - 1}, size=${pageSize}, sort='title,asc')}">Previous page</a>
+                <span th:if="${totalPages > 0}" class="book-list-page-info" th:text="|Page ${page + 1} of ${totalPages}|">Page 1 of 1</span>
+                <a th:if="${hasNext}"
+                   class="book-list-link"
+                   th:href="@{/my-bookshelf(page=${page + 1}, size=${pageSize}, sort='title,asc')}">Next page</a>
+            </nav>
+
+            <p class="book-list-back">
+                <a class="book-list-link" th:href="@{/home}">Back</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<footer>
+    © 2026 All rights reserved
+</footer>
+
+</body>
+</html>

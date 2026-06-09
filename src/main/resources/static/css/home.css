@@ -172,6 +172,7 @@ body {
 }
 
 .home-action-icon {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -211,6 +212,33 @@ body {
 .home-action--primary .home-action-icon svg {
     width: 58%;
     height: 58%;
+}
+
+.home-action-badge {
+    position: absolute;
+    right: clamp(2px, 0.45cqw, 5px);
+    bottom: clamp(2px, 0.45cqw, 5px);
+    min-width: clamp(14px, 2.4cqw, 20px);
+    height: clamp(14px, 2.4cqw, 20px);
+    padding: 0 clamp(3px, 0.45cqw, 5px);
+    border-radius: 999px;
+    border: 1px solid rgba(245, 240, 232, 0.85);
+    background: #3b210f;
+    color: #f5f0e8;
+    font-size: clamp(7px, min(1.1vw, 1.8cqh), 11px);
+    font-weight: 700;
+    font-family: "Trebuchet MS", sans-serif;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.home-action:hover .home-action-badge {
+    background: #f5f0e8;
+    color: #3b210f;
+    border-color: #3b210f;
 }
 
 .home-action-label {

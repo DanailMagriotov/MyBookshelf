@@ -23,19 +23,19 @@ public class HomeActionController {
     @GetMapping("/bookshelf")
     public String myBookshelf(HttpSession session) {
         authenticationGuard.requireAuthenticated(userSessionService.get(session).orElse(null));
-        return "redirect:/home";
+        return "redirect:/my-bookshelf";
     }
 
     @GetMapping("/add-book")
     public String addBook(HttpSession session) {
         authenticationGuard.requireAuthenticated(userSessionService.get(session).orElse(null));
-        return "redirect:/home";
+        return "redirect:/add-book";
     }
 
     @GetMapping("/send-book")
     public String sendBook(HttpSession session) {
         authenticationGuard.requireAuthenticated(userSessionService.get(session).orElse(null));
-        return "redirect:/home";
+        return "redirect:/send-book";
     }
 
     @GetMapping("/messages")

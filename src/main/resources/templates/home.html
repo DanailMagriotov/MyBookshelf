@@ -30,7 +30,7 @@
 
         <nav class="home-actions" aria-label="Home navigation">
         <div class="home-actions-row">
-            <a class="home-action home-action--primary" th:href="@{/home/actions/bookshelf}" data-home-action>
+            <a class="home-action home-action--primary home-action--bookshelf" th:href="@{/home/actions/bookshelf}" data-home-action>
                 <span class="home-action-icon" aria-hidden="true">
                     <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
                         <path d="M14 18h10v30H14zM14 18v30"/>
@@ -40,6 +40,7 @@
                         <path d="M38 20h10v32H38zM38 20v32"/>
                         <path d="M41 24h4M41 30h4M41 36h4"/>
                     </svg>
+                    <span class="home-action-badge" th:if="${bookshelfCount != null}" th:text="${bookshelfCount}">0</span>
                 </span>
                 <span class="home-action-label">my bookshelf</span>
             </a>
