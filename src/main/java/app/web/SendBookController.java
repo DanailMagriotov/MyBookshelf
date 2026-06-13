@@ -6,7 +6,7 @@ import app.exception.ReceiverNotFoundException;
 import app.exception.SelfTransferException;
 import app.model.dto.book.SendBookRequest;
 import app.model.dto.user.UserSession;
-import app.service.book.BookTransferService;
+import app.service.booktransfer.BookTransferService;
 import app.service.user.UserService;
 import app.service.user.UserSessionService;
 import jakarta.servlet.http.HttpSession;

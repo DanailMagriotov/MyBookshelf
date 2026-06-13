@@ -17,8 +17,6 @@ public interface BookRepository extends JpaRepository<Book, UUID> {
 
     void deleteByOwner_Id(UUID ownerId);
 
-    Page<Book> findByOwner_Id(UUID ownerId, Pageable pageable);
-
     @Query(value = """
             SELECT b FROM Book b
             WHERE b.owner.id = :userId

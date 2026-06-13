@@ -4,7 +4,7 @@ import app.exception.NotAuthenticatedException;
 import app.model.dto.book.MyBookshelfBookDto;
 import app.model.dto.user.UserSession;
 import app.service.book.BookService;
-import app.service.book.BookTransferService;
+import app.service.booktransfer.BookTransferService;
 import app.service.user.UserSessionService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.data.domain.Page;

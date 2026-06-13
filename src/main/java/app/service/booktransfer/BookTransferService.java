@@ -1,4 +1,4 @@
-package app.service.book;
+package app.service.booktransfer;
 
 import app.exception.AccessDeniedException;
 import app.exception.BookNotAvailableForTransferException;
