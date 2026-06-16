@@ -1,0 +1,41 @@
+.user-list-table th:nth-child(1),
+.user-list-table td:nth-child(1) {
+    width: 14%;
+}
+
+.user-list-table th:nth-child(2),
+.user-list-table td:nth-child(2) {
+    width: 12%;
+}
+
+.user-list-table th:nth-child(3),
+.user-list-table td:nth-child(3) {
+    width: 12%;
+}
+
+.user-list-table th:nth-child(4),
+.user-list-table td:nth-child(4) {
+    width: 24%;
+}
+
+.user-list-table th:nth-child(5),
+.user-list-table td:nth-child(5) {
+    width: 10%;
+}
+
+.user-list-table th:nth-child(6),
+.user-list-table td:nth-child(6) {
+    width: 12%;
+}
+
+.user-list-table th:nth-child(7),
+.user-list-table td:nth-child(7) {
+    width: 8%;
+    text-align: center;
+}
+
+@media (max-width: 640px) {
+    .user-list-table {
+        min-width: 760px;
+    }
+}

@@ -4,9 +4,14 @@ import app.exception.EmailAlreadyExistsException;
 import app.exception.NotAuthenticatedException;
 import app.exception.UsernameAlreadyExistsException;
 import app.mapper.user.UserMapper;
+import app.model.dto.user.AdminUserDto;
 import app.model.dto.user.MyProfileUpdateRequest;
 import app.model.dto.user.UserRegRequest;
 import app.model.dto.user.UserSession;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import app.model.entity.user.User;
 import app.model.entity.user.UserRole;
 import app.repository.book.BookRepository;
@@ -21,6 +26,8 @@ import java.util.UUID;
 
 @Service
 public class UserService {
+
+    public static final int USERS_PAGE_SIZE = 6;
 
     private final UserRepository userRepository;
     private final BookRepository bookRepository;
@@ -93,6 +100,15 @@ public class UserService {
             return false;
         }
         return userRepository.existsByUsername(username.trim());
+    }
+
+    public Page<AdminUserDto> getUsers(Pageable pageable) {
+        int pageNumber = Math.max(pageable.getPageNumber(), 0);
+        Sort sort = pageable.getSort().isSorted() ? pageable.getSort() : Sort.by("username").ascending();
+        PageRequest pageRequest = PageRequest.of(pageNumber, USERS_PAGE_SIZE, sort);
+
+        return userRepository.findAll(pageRequest)
+                .map(user -> UserMapper.toAdminUserDto(user, bookRepository.countByOwner_Id(user.getId())));
     }
 
     private String trimToNull(String value) {

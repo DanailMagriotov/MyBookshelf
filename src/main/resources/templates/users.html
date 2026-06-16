@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>users</title>
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
+    <link rel="stylesheet" th:href="@{/css/my-bookshelf.css}">
+    <link rel="stylesheet" th:href="@{/css/users.css}">
+</head>
+
+<body>
+
+<div class="scene">
+    <img class="page-bg"
+         th:src="@{/images/book-list-background.png}"
+         alt="">
+
+    <div class="book-list-panel">
+        <div class="book-list-content">
+            <h1 class="book-list-title">users</h1>
+
+            <p class="book-list-counter">
+                <span class="book-list-counter-label">Registered users:</span>
+                <span class="book-list-counter-value" th:text="${totalUsers}">0</span>
+            </p>
+
+            <div class="book-list-table-wrap">
+                <table class="book-list-table user-list-table">
+                    <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>First name</th>
+                        <th>Last name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>City</th>
+                        <th>Books</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="user : ${users}">
+                        <td th:text="${user.username}">Username</td>
+                        <td th:text="${user.firstName != null ? user.firstName : '-'}">First name</td>
+                        <td th:text="${user.lastName != null ? user.lastName : '-'}">Last name</td>
+                        <td th:text="${user.email}">Email</td>
+                        <td th:text="${user.role}">Role</td>
+                        <td th:text="${user.region != null ? user.region : '-'}">City</td>
+                        <td th:text="${user.bookCount}">0</td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(users)}">
+                        <td class="book-list-empty" colspan="7">No users found.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <nav class="book-list-pagination" aria-label="Users pagination">
+                <a th:if="${hasPrevious}"
+                   class="book-list-link"
+                   th:href="@{/users(page=${page - 1}, size=${pageSize}, sort='username,asc')}">Previous page</a>
+                <span th:if="${totalPages > 0}" class="book-list-page-info" th:text="|Page ${page + 1} of ${totalPages}|">Page 1 of 1</span>
+                <a th:if="${hasNext}"
+                   class="book-list-link"
+                   th:href="@{/users(page=${page + 1}, size=${pageSize}, sort='username,asc')}">Next page</a>
+            </nav>
+
+            <p class="book-list-back">
+                <a class="book-list-link" th:href="@{/home}">Back</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<footer>
+    © 2026 All rights reserved
+</footer>
+
+</body>
+</html>

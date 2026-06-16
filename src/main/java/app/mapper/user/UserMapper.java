@@ -1,5 +1,6 @@
 package app.mapper.user;
 
+import app.model.dto.user.AdminUserDto;
 import app.model.dto.user.MyProfileUpdateRequest;
 import app.model.dto.user.UserRegRequest;
 import app.model.dto.user.UserSession;
@@ -53,6 +54,22 @@ public class UserMapper {
                 .role(user.getRole())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
+                .build();
+    }
+
+    public static AdminUserDto toAdminUserDto(User user, long bookCount) {
+        if (user == null) {
+            return null;
+        }
+
+        return AdminUserDto.builder()
+                .username(user.getUsername())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .role(user.getRole())
+                .region(user.getRegion())
+                .bookCount(bookCount)
                 .build();
     }
 }

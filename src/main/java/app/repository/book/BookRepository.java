@@ -17,6 +17,8 @@ public interface BookRepository extends JpaRepository<Book, UUID> {
 
     void deleteByOwner_Id(UUID ownerId);
 
+    long countByOwner_Id(UUID ownerId);
+
     @Query(value = """
             SELECT b FROM Book b
             WHERE b.owner.id = :userId

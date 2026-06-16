@@ -53,6 +53,6 @@ public class HomeActionController {
     @GetMapping("/users")
     public String users(HttpSession session) {
         authenticationGuard.requireAdmin(userSessionService.get(session).orElse(null));
-        return "redirect:/home";
+        return "redirect:/users";
     }
 }
