@@ -2,11 +2,13 @@ package app.service.booktransfer;
 
 import app.exception.AccessDeniedException;
 import app.exception.BookNotAvailableForTransferException;
+import app.exception.InvalidReturnDeadlineException;
 import app.exception.NotAuthenticatedException;
 import app.exception.ReceiverNotFoundException;
 import app.exception.SelfTransferException;
 import app.mapper.book.BookMapper;
 import app.model.dto.book.BookOptionDto;
+import app.model.dto.book.EditTransferRequest;
 import app.model.dto.book.SendBookRequest;
 import app.model.entity.book.Book;
 import app.model.entity.booktransfer.BookTransfer;
@@ -18,6 +20,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -103,5 +106,39 @@ public class BookTransferService {
 
         bookTransferRepository.delete(transfer);
         bookTransferRepository.flush();
+    }
+
+    public Book getOwnedTransferBook(UUID ownerId, UUID bookId) {
+        return findOwnedTransfer(ownerId, bookId).getBook();
+    }
+
+    public EditTransferRequest getEditTransferRequest(UUID ownerId, UUID bookId) {
+        BookTransfer transfer = findOwnedTransfer(ownerId, bookId);
+        return EditTransferRequest.builder()
+                .returnDeadline(transfer.getReturnAt().toLocalDate())
+                .build();
+    }
+
+    public LocalDate getMinReturnDate(UUID ownerId, UUID bookId) {
+        return findOwnedTransfer(ownerId, bookId).getReturnAt().toLocalDate();
+    }
+
+    @Transactional
+    public void updateReturnDeadline(UUID ownerId, UUID bookId, LocalDate returnDeadline) {
+        BookTransfer transfer = findOwnedTransfer(ownerId, bookId);
+        LocalDate currentDeadline = transfer.getReturnAt().toLocalDate();
+
+        if (returnDeadline.isBefore(currentDeadline)) {
+            throw new InvalidReturnDeadlineException();
+        }
+
+        transfer.setReturnAt(returnDeadline.atTime(23, 59));
+        transfer.setUpdatedAt(LocalDateTime.now());
+        bookTransferRepository.save(transfer);
+    }
+
+    private BookTransfer findOwnedTransfer(UUID ownerId, UUID bookId) {
+        return bookTransferRepository.findByBook_IdAndSender_Id(bookId, ownerId)
+                .orElseThrow(AccessDeniedException::new);
     }
 }

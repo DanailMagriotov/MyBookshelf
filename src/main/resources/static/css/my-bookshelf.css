@@ -175,6 +175,12 @@
     vertical-align: middle;
 }
 
+.book-list-actions .book-edit-link {
+    display: inline-block;
+    text-decoration: none;
+    line-height: normal;
+}
+
 .book-delete-btn {
     padding: clamp(4px, 0.8cqh, 6px) clamp(8px, 1.5cqw, 12px);
     border-radius: clamp(6px, 1vw, 8px);

@@ -47,7 +47,15 @@ public class BookMapper {
                 .returnDeadline(transfer != null ? transfer.getReturnAt() : null)
                 .deletable(isDeletable(book, transfer, viewerId))
                 .returnable(isReturnable(transfer, viewerId))
+                .editable(isEditable(book, transfer, viewerId))
                 .build();
+    }
+
+    private static boolean isEditable(Book book, BookTransfer transfer, UUID viewerId) {
+        return transfer != null
+                && book.getOwner() != null
+                && book.getOwner().getId().equals(viewerId)
+                && transfer.getReceiver() != null;
     }
 
     private static boolean isReturnable(BookTransfer transfer, UUID viewerId) {

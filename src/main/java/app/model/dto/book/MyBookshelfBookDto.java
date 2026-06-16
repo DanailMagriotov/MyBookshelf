@@ -23,4 +23,5 @@ public class MyBookshelfBookDto {
     private LocalDateTime returnDeadline;
     private boolean deletable;
     private boolean returnable;
+    private boolean editable;
 }

@@ -16,6 +16,8 @@ public interface BookTransferRepository extends JpaRepository<BookTransfer, UUID
 
     Optional<BookTransfer> findByBook_IdAndReceiver_Id(UUID bookId, UUID receiverId);
 
+    Optional<BookTransfer> findByBook_IdAndSender_Id(UUID bookId, UUID senderId);
+
     void deleteBySender_Id(UUID senderId);
 
     void deleteByReceiver_Id(UUID receiverId);

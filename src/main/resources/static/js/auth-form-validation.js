@@ -104,4 +104,22 @@
             }
         });
     }
+
+    var editTransferForm = document.getElementById('edit-transfer-form');
+    if (editTransferForm) {
+        initAuthForm(editTransferForm, {
+            returnDeadline: function (field) {
+                if (isEmpty(field)) {
+                    return 'Return deadline is required';
+                }
+
+                var minDate = field.getAttribute('data-min-date');
+                if (minDate && field.value < minDate) {
+                    return 'Return deadline cannot be earlier than the current deadline';
+                }
+
+                return '';
+            }
+        });
+    }
 })();
