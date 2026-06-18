@@ -75,7 +75,14 @@
             <button type="submit" class="submit-btn">Save changes</button>
         </form>
 
-        <button type="button" class="delete-account-btn" id="deleteAccountBtn">Delete account</button>
+        <div class="delete-account-wrap" th:classappend="${isAdmin} ? ' delete-account-wrap--disabled' : ''">
+            <button type="button"
+                    class="delete-account-btn"
+                    id="deleteAccountBtn"
+                    th:disabled="${isAdmin}"
+                    th:attr="aria-disabled=${isAdmin}">Delete account</button>
+            <span th:if="${isAdmin}" class="delete-account-tooltip" role="tooltip">This account cannot be deleted</span>
+        </div>
 
         <div id="deleteAccountDialog" class="delete-dialog" hidden>
             <div class="delete-dialog__backdrop" data-delete-dialog-dismiss></div>

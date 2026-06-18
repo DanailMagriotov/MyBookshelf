@@ -52,6 +52,7 @@
 .form-container--my-profile .auth-title,
 .form-container--my-profile .alert,
 .form-container--my-profile .my-profile-form,
+.form-container--my-profile .delete-account-wrap,
 .form-container--my-profile .delete-account-btn,
 .form-container--my-profile .auth-link {
     width: 100%;
@@ -112,6 +113,12 @@
     max-width: 100%;
 }
 
+.delete-account-wrap {
+    position: relative;
+    display: block;
+    width: 100%;
+}
+
 .delete-account-btn {
     height: var(--btn-height);
     margin-top: clamp(6px, 1.2cqh, 10px);
@@ -135,6 +142,61 @@
     background: rgba(180, 40, 40, 0.18);
     border-color: rgba(180, 40, 40, 0.65);
     transform: translateY(-1px);
+}
+
+.delete-account-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.delete-account-wrap--disabled:hover .delete-account-btn:disabled,
+.delete-account-wrap--disabled:focus-within .delete-account-btn:disabled {
+    background: rgba(180, 40, 40, 0.1);
+    border-color: rgba(180, 40, 40, 0.45);
+    transform: none;
+}
+
+.delete-account-tooltip {
+    position: absolute;
+    bottom: calc(100% + 10px);
+    left: 50%;
+    z-index: 2;
+    transform: translateX(-50%);
+
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(59, 33, 15, 0.2);
+
+    background: #fff8ef;
+    color: #3b210f;
+
+    font-size: clamp(11px, min(1.1vw, 2cqh), 13px);
+    font-family: "Trebuchet MS", sans-serif;
+    line-height: 1.35;
+    white-space: nowrap;
+
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+
+    transition: opacity 0.15s ease, visibility 0.15s ease;
+}
+
+.delete-account-tooltip::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: #fff8ef;
+}
+
+.delete-account-wrap--disabled:hover .delete-account-tooltip,
+.delete-account-wrap--disabled:focus-within .delete-account-tooltip {
+    opacity: 1;
+    visibility: visible;
 }
 
 .delete-dialog {

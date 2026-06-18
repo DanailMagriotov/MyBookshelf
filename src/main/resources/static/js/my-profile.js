@@ -19,7 +19,12 @@
         deleteBtn.focus();
     }
 
-    deleteBtn.addEventListener('click', openDialog);
+    deleteBtn.addEventListener('click', function () {
+        if (deleteBtn.disabled) {
+            return;
+        }
+        openDialog();
+    });
 
     cancelBtn.addEventListener('click', closeDialog);
 
