@@ -102,6 +102,12 @@ public class UserService {
         return userRepository.existsByUsername(username.trim());
     }
 
+    public boolean matchesCurrentPassword(UUID userId, String rawPassword) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(NotAuthenticatedException::new);
+        return passwordEncoder.matches(rawPassword, user.getPassword());
+    }
+
     public Page<AdminUserDto> getUsers(Pageable pageable) {
         int pageNumber = Math.max(pageable.getPageNumber(), 0);
         Sort sort = pageable.getSort().isSorted() ? pageable.getSort() : Sort.by("username").ascending();

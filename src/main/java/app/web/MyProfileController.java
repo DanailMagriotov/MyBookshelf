@@ -27,6 +27,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.UUID;
+
 @Controller
 @RequestMapping("/my-profile")
 public class MyProfileController {
@@ -73,7 +75,7 @@ public class MyProfileController {
         model.addAttribute("username", userSession.getUsername());
         model.addAttribute("isAdmin", userSession.getRole() == UserRole.ADMIN);
 
-        validatePasswordFields(request, bindingResult);
+        validatePasswordFields(userSession.getId(), request, bindingResult);
 
         if (bindingResult.hasErrors()) {
             return "my-profile";
@@ -116,7 +118,7 @@ public class MyProfileController {
                 .orElseThrow(NotAuthenticatedException::new);
     }
 
-    private void validatePasswordFields(MyProfileUpdateRequest request, BindingResult bindingResult) {
+    private void validatePasswordFields(UUID userId, MyProfileUpdateRequest request, BindingResult bindingResult) {
         boolean hasPassword = StringUtils.hasText(request.getPassword());
         boolean hasConfirmPassword = StringUtils.hasText(request.getConfirmPassword());
 
@@ -134,6 +136,9 @@ public class MyProfileController {
         } else if (!request.getPassword().matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$")) {
             bindingResult.rejectValue("password", "password.pattern",
                     "Password must contain at least one uppercase letter, one lowercase letter, and one digit");
+        } else if (userService.matchesCurrentPassword(userId, request.getPassword())) {
+            bindingResult.rejectValue("password", "password.same",
+                    "Please enter a password different from the current one");
         } else if (!request.getPassword().equals(request.getConfirmPassword())) {
             bindingResult.rejectValue("confirmPassword", "password.mismatch", "Passwords do not match");
         }
