@@ -68,7 +68,10 @@ public class UsersController {
             redirectAttributes.addFlashAttribute("errorMessage", "This account cannot be deleted.");
         }
 
-        return "redirect:/users?page=" + page + "&size=" + UserService.USERS_PAGE_SIZE + "&sort=username,asc";
+        redirectAttributes.addAttribute("page", page);
+        redirectAttributes.addAttribute("size", UserService.USERS_PAGE_SIZE);
+        redirectAttributes.addAttribute("sort", "username,asc");
+        return "redirect:/users";
     }
 
     private void requireAdmin(HttpSession session) {
