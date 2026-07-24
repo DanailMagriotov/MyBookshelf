@@ -10,9 +10,9 @@ import java.util.UUID;
 @Repository
 public interface MessageRepository extends JpaRepository<Message, UUID> {
 
-    List<Message> findByReceiverIdOrderBySentAtDesc(UUID receiverId);
+    List<Message> findByReceiverIdAndHiddenFromReceiverFalseOrderBySentAtDesc(UUID receiverId);
 
     List<Message> findBySenderIdAndHiddenFromSenderFalseOrderBySentAtDesc(UUID senderId);
 
-    long countByReceiverIdAndReadFalse(UUID receiverId);
+    long countByReceiverIdAndHiddenFromReceiverFalseAndReadFalse(UUID receiverId);
 }

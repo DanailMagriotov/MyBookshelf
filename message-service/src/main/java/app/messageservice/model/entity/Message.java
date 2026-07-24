@@ -52,4 +52,8 @@ public class Message {
     @Column(name = "hidden_from_sender", nullable = false)
     @Builder.Default
     private boolean hiddenFromSender = false;
+
+    @Column(name = "hidden_from_receiver", nullable = false)
+    @Builder.Default
+    private boolean hiddenFromReceiver = false;
 }

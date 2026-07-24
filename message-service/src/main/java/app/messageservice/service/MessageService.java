@@ -41,6 +41,7 @@ public class MessageService {
                 .sentAt(LocalDateTime.now())
                 .read(false)
                 .hiddenFromSender(false)
+                .hiddenFromReceiver(false)
                 .build();
 
         Message saved = messageRepository.save(message);
@@ -49,7 +50,7 @@ public class MessageService {
     }
 
     public List<MessageResponse> getInbox(UUID userId) {
-        return messageRepository.findByReceiverIdOrderBySentAtDesc(userId)
+        return messageRepository.findByReceiverIdAndHiddenFromReceiverFalseOrderBySentAtDesc(userId)
                 .stream()
                 .map(MessageMapper::toMessageResponse)
                 .toList();
@@ -63,7 +64,7 @@ public class MessageService {
     }
 
     public long getUnreadCount(UUID userId) {
-        return messageRepository.countByReceiverIdAndReadFalse(userId);
+        return messageRepository.countByReceiverIdAndHiddenFromReceiverFalseAndReadFalse(userId);
     }
 
     @Transactional
@@ -108,8 +109,9 @@ public class MessageService {
         }
 
         if (message.getReceiverId().equals(userId)) {
-            messageRepository.delete(message);
-            log.info("Message {} deleted by receiver {}", messageId, userId);
+            message.setHiddenFromReceiver(true);
+            messageRepository.save(message);
+            log.info("Message {} hidden from inbox for {}", messageId, userId);
             return;
         }
 
@@ -124,6 +126,9 @@ public class MessageService {
     private void assertReceiver(Message message, UUID userId) {
         if (!message.getReceiverId().equals(userId)) {
             throw new MessageAccessDeniedException();
+        }
+        if (message.isHiddenFromReceiver()) {
+            throw new MessageNotFoundException();
         }
     }
 }
