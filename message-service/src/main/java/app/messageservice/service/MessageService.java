@@ -40,6 +40,7 @@ public class MessageService {
                 .content(request.getContent().trim())
                 .sentAt(LocalDateTime.now())
                 .read(false)
+                .hiddenFromSender(false)
                 .build();
 
         Message saved = messageRepository.save(message);

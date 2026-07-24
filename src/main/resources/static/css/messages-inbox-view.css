@@ -1,3 +1,20 @@
+.scene {
+    /* Light panel bounds on login-background.png (1672×941) */
+    --light-left: 18%;
+    --light-right: 18%;
+    --light-top: 12%;
+    --light-bottom: 10%;
+    --panel-width: min(100%, 520px);
+    --title-size: clamp(18px, min(2.6vw, 3.8cqh), 30px);
+    --label-size: clamp(12px, min(1.2vw, 2.2cqh), 14px);
+    --text-size: clamp(13px, min(1.3vw, 2.3cqh), 15px);
+    --link-font: clamp(13px, min(1.3vw, 2.2cqh), 15px);
+    --field-gap: clamp(10px, 2cqh, 16px);
+
+    container-type: size;
+    container-name: scene;
+}
+
 .message-view-panel {
     position: absolute;
     top: var(--light-top);
@@ -7,25 +24,24 @@
     z-index: 1;
     box-sizing: border-box;
     overflow: hidden;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 clamp(4px, 1cqw, 8px);
 }
 
 .message-view-content {
-    flex: 0 1 auto;
-    width: min(520px, 100%);
-    max-width: 100%;
-    max-height: 100%;
-    min-width: 0;
-    padding: 0 clamp(6px, 1.5cqw, 12px);
-    box-sizing: border-box;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 
     display: flex;
     flex-direction: column;
     align-items: stretch;
+
+    width: var(--panel-width);
+    max-width: calc(100% - 16px);
+    max-height: calc(100% - 16px);
+    min-width: 0;
+    padding: 0 clamp(6px, 1.5cqw, 12px);
+    box-sizing: border-box;
 
     overflow-x: hidden;
     overflow-y: auto;
@@ -35,7 +51,7 @@
 .message-view-title {
     margin: 0 0 clamp(10px, 2cqh, 16px);
     color: #3b210f;
-    font-size: clamp(18px, min(2.6vw, 3.8cqh), 30px);
+    font-size: var(--title-size);
     font-weight: 500;
     font-style: italic;
     font-family: "Trebuchet MS", sans-serif;
@@ -61,7 +77,7 @@
 .message-view-fields {
     display: flex;
     flex-direction: column;
-    gap: clamp(10px, min(2cqh, 2.5cqw), 16px);
+    gap: var(--field-gap);
     width: 100%;
     min-width: 0;
 }
@@ -77,7 +93,7 @@
 .message-view-label {
     margin: 0;
     color: #3b210f;
-    font-size: clamp(12px, min(1.2vw, 2.2cqh), 14px);
+    font-size: var(--label-size);
     font-weight: 600;
     font-family: "Trebuchet MS", sans-serif;
     text-decoration: underline;
@@ -90,7 +106,7 @@
     width: 100%;
     min-width: 0;
     color: #3b210f;
-    font-size: clamp(13px, min(1.3vw, 2.3cqh), 15px);
+    font-size: var(--text-size);
     font-weight: 400;
     font-family: "Trebuchet MS", sans-serif;
     line-height: 1.45;
@@ -106,70 +122,87 @@
     width: 100%;
 }
 
-@container scene (max-width: 720px) {
-    .message-view-content {
-        width: 100%;
-        padding: 0 clamp(4px, 1.5cqw, 10px);
-    }
+.message-view-content .book-list-link {
+    color: #3b210f;
+    font-size: var(--link-font);
+    font-weight: 600;
+    font-family: "Trebuchet MS", sans-serif;
+    text-decoration: none;
+}
+
+.message-view-content .book-list-link:hover {
+    text-decoration: underline;
+}
+
+footer {
+    position: fixed;
+    z-index: 2;
+    left: 20px;
+    bottom: 15px;
+    color: #6d5848;
+    font-size: 14px;
 }
 
 @container scene (max-height: 420px) {
-    .message-view-title {
-        font-size: clamp(16px, min(2.2vw, 3.2cqh), 24px);
-        margin-bottom: clamp(8px, 1.6cqh, 12px);
-    }
-
-    .message-view-fields {
-        gap: clamp(8px, 1.6cqh, 12px);
-    }
-
-    .message-view-label {
-        font-size: clamp(11px, min(1.1vw, 2cqh), 13px);
-    }
-
-    .message-view-value {
-        font-size: clamp(12px, min(1.2vw, 2.1cqh), 14px);
+    .scene {
+        --title-size: clamp(16px, min(2.2vw, 3.2cqh), 24px);
+        --light-top: 10%;
+        --light-bottom: 8%;
+        --field-gap: clamp(8px, 1.6cqh, 12px);
     }
 }
 
 @container scene (max-height: 320px) {
-    .message-view-title {
-        font-size: clamp(14px, min(1.8vw, 2.8cqh), 20px);
+    .scene {
+        --title-size: clamp(14px, min(1.8vw, 2.8cqh), 20px);
+        --light-top: 9%;
+        --light-bottom: 7%;
+        --field-gap: clamp(6px, 1.2cqh, 10px);
     }
+}
 
-    .message-view-fields {
-        gap: clamp(6px, 1.2cqh, 10px);
-    }
-
-    .message-view-label {
-        font-size: clamp(10px, 1.8cqh, 12px);
-    }
-
-    .message-view-value {
-        font-size: clamp(11px, 1.7cqh, 13px);
+@media (max-width: 900px) {
+    .scene {
+        --light-left: 18%;
+        --light-right: 18%;
     }
 }
 
 @media (max-width: 640px) {
-    .message-view-label {
-        font-size: clamp(11px, 3.4vw, 13px);
-    }
-
-    .message-view-value {
-        font-size: clamp(12px, 3.6vw, 14px);
+    .scene {
+        --light-left: 14%;
+        --light-right: 14%;
+        --light-top: 10%;
+        --light-bottom: 8%;
     }
 }
 
 @media (max-width: 480px) {
+    .scene {
+        --light-left: 10%;
+        --light-right: 10%;
+        --light-top: 10%;
+        --light-bottom: 8%;
+    }
+
+    footer {
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-size: 12px;
+    }
+}
+
+@media (max-height: 780px) {
     .message-view-content {
-        max-width: calc(100% - 4px);
-        padding: 0 clamp(4px, 1.2cqw, 8px);
+        transform: translate(-50%, -50%);
+        max-height: calc(100% - 12px);
     }
 }
 
 @media (max-height: 580px) {
-    .message-view-panel {
-        top: 10%;
-        bottom: 8%;
+    .scene {
+        --light-top: 9%;
+        --light-bottom: 7%;
     }
 }
