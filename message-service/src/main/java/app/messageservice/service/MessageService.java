@@ -103,19 +103,29 @@ public class MessageService {
 
         if (message.getSenderId().equals(userId)) {
             message.setHiddenFromSender(true);
-            messageRepository.save(message);
+            persistOrDelete(message);
             log.info("Message {} hidden from sent list for {}", messageId, userId);
             return;
         }
 
         if (message.getReceiverId().equals(userId)) {
             message.setHiddenFromReceiver(true);
-            messageRepository.save(message);
+            persistOrDelete(message);
             log.info("Message {} hidden from inbox for {}", messageId, userId);
             return;
         }
 
         throw new MessageAccessDeniedException();
+    }
+
+    private void persistOrDelete(Message message) {
+        if (message.isHiddenFromSender() && message.isHiddenFromReceiver()) {
+            messageRepository.delete(message);
+            log.info("Message {} permanently deleted from database", message.getId());
+            return;
+        }
+
+        messageRepository.save(message);
     }
 
     private Message findMessage(UUID messageId) {
