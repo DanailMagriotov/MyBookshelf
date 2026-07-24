@@ -76,6 +76,9 @@
                     <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
                         <path d="M12 20h40v28H12zM12 20l20 14 20-14"/>
                     </svg>
+                    <span class="home-action-badge"
+                          th:if="${unreadMessageCount != null and unreadMessageCount > 0}"
+                          th:text="${unreadMessageCount}">0</span>
                 </span>
                 <span class="home-action-label">messages</span>
             </a>

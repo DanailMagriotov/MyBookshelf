@@ -17,6 +17,7 @@ public class MessageResponse {
     private UUID id;
     private UUID senderId;
     private UUID receiverId;
+    private String about;
     private String content;
     private LocalDateTime sentAt;
     private LocalDateTime readAt;

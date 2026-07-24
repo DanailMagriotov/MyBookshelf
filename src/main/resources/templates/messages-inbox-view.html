@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>message</title>
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
+    <link rel="stylesheet" th:href="@{/css/messages-hub.css}">
+    <link rel="stylesheet" th:href="@{/css/my-bookshelf.css}">
+    <link rel="stylesheet" th:href="@{/css/messages-inbox-view.css}">
+</head>
+
+<body>
+
+<div class="scene">
+    <img class="page-bg"
+         th:src="@{/images/login-background.png}"
+         alt="">
+
+    <div class="message-view-panel">
+        <div class="message-view-content">
+            <h1 class="message-view-title">message</h1>
+
+            <p th:if="${errorMessage}" class="message-view-error" th:text="${errorMessage}"></p>
+
+            <div th:unless="${errorMessage}" class="message-view-fields">
+                <div class="message-view-field">
+                    <span class="message-view-label">From</span>
+                    <p class="message-view-value" th:text="${message.senderUsername}">sender</p>
+                </div>
+
+                <div class="message-view-field">
+                    <span class="message-view-label">About</span>
+                    <p class="message-view-value" th:text="${message.about}">about</p>
+                </div>
+
+                <div class="message-view-field">
+                    <span class="message-view-label">Message</span>
+                    <p class="message-view-value" th:text="${message.content}">content</p>
+                </div>
+
+                <div class="message-view-field">
+                    <span class="message-view-label">Received at</span>
+                    <p class="message-view-value" th:text="${#temporals.format(message.sentAt, 'dd MMM yyyy HH:mm')}">Received at</p>
+                </div>
+            </div>
+
+            <p class="book-list-back">
+                <a class="book-list-link" th:href="@{/messages/inbox(page=${page})}">Back</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<footer>
+    © 2026 All rights reserved
+</footer>
+
+</body>
+</html>

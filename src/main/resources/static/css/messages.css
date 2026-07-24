@@ -1,0 +1,164 @@
+.scene {
+    --btn-height: clamp(44px, min(5vh, 7cqh), 52px);
+    --btn-font: clamp(16px, min(1.8vw, 2.8cqh), 20px);
+
+    container-type: size;
+    container-name: scene;
+}
+
+.messages-page-panel {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+
+    width: min(100%, 420px);
+    max-width: calc(100% - 48px);
+    max-height: 78%;
+    overflow-y: auto;
+    padding: 0 clamp(12px, 3cqw, 24px);
+    box-sizing: border-box;
+}
+
+.messages-page-content {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.messages-page-title {
+    margin: 0 0 clamp(14px, 3cqh, 22px);
+    color: #3b210f;
+    font-size: clamp(20px, min(2.8vw, 4cqh), 32px);
+    font-weight: 500;
+    font-style: italic;
+    font-family: "Trebuchet MS", sans-serif;
+    letter-spacing: 0.04em;
+    text-align: center;
+}
+
+.messages-page-alert {
+    margin-bottom: clamp(10px, 2cqh, 14px);
+    text-align: center;
+}
+
+.messages-page-back {
+    margin: clamp(16px, 3cqh, 24px) 0 0;
+    font-size: clamp(13px, min(1.4vw, 2.4cqh), 16px);
+    font-family: "Trebuchet MS", sans-serif;
+    text-align: center;
+}
+
+.messages-page-back a {
+    color: #3b210f;
+    text-decoration: none;
+}
+
+.messages-page-back a:hover {
+    text-decoration: underline;
+}
+
+.messages-compose {
+    width: 100%;
+    margin-bottom: clamp(12px, 2cqh, 18px);
+    padding: clamp(10px, 2cqh, 16px);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.28);
+    flex-shrink: 0;
+}
+
+.messages-section-title {
+    margin: 0 0 clamp(8px, 1.5cqh, 12px);
+    color: #3b210f;
+    font-size: clamp(14px, min(1.5vw, 2.5cqh), 18px);
+    font-family: "Trebuchet MS", sans-serif;
+}
+
+.messages-form {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(8px, 1.5cqh, 12px);
+}
+
+.messages-form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.messages-label {
+    color: #3b210f;
+    font-size: clamp(12px, min(1.2vw, 2.2cqh), 14px);
+    font-family: "Trebuchet MS", sans-serif;
+    font-weight: 600;
+}
+
+.messages-form input,
+.messages-form textarea {
+    width: 100%;
+    padding: clamp(8px, 1.2cqh, 10px) clamp(10px, 2cqw, 14px);
+    border: 1px solid rgba(59, 33, 15, 0.25);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.85);
+    color: #3b210f;
+    font-family: "Trebuchet MS", sans-serif;
+    font-size: clamp(12px, min(1.2vw, 2.2cqh), 14px);
+    box-sizing: border-box;
+}
+
+.messages-form textarea {
+    resize: vertical;
+    min-height: 88px;
+}
+
+.messages-form .submit-btn {
+    width: 100%;
+    max-width: 100%;
+    height: var(--btn-height);
+    font-size: var(--btn-font);
+    margin-top: clamp(4px, 1cqh, 8px);
+    border-radius: clamp(10px, 1.4vw, 12px);
+}
+
+.messages-form .field-error {
+    margin-top: 0;
+    font-size: clamp(11px, min(1.2vw, 2cqh), 13px);
+}
+
+.message-list-table th:nth-child(1),
+.message-list-table td:nth-child(1) {
+    width: 14%;
+}
+
+.message-list-table th:nth-child(2),
+.message-list-table td:nth-child(2) {
+    width: 38%;
+}
+
+.message-list-table th:nth-child(3),
+.message-list-table td:nth-child(3) {
+    width: 18%;
+}
+
+.message-list-table th:nth-child(4),
+.message-list-table td:nth-child(4) {
+    width: 10%;
+}
+
+.message-list-table th:nth-child(5),
+.message-list-table td:nth-child(5) {
+    width: 20%;
+}
+
+.book-list-alert.alert-error {
+    background: rgba(180, 40, 40, 0.12);
+    color: #7a1f1f;
+    border: 1px solid rgba(180, 40, 40, 0.35);
+}
+
+@media (max-width: 640px) {
+    .message-list-table {
+        min-width: 760px;
+    }
+}

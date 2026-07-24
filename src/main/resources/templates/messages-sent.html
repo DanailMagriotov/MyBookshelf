@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>sent</title>
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
+    <link rel="stylesheet" th:href="@{/css/my-bookshelf.css}">
+    <link rel="stylesheet" th:href="@{/css/messages.css}">
+    <link rel="stylesheet" th:href="@{/css/messages-sent.css}">
+</head>
+
+<body>
+
+<div class="scene">
+    <img class="page-bg"
+         th:src="@{/images/book-list-background.png}"
+         alt="">
+
+    <div class="book-list-panel">
+        <div class="book-list-content">
+            <h1 class="book-list-title">sent</h1>
+
+            <div th:if="${successMessage}" class="alert alert-success book-list-alert" th:text="${successMessage}"></div>
+            <div th:if="${serviceError}" class="alert alert-error book-list-alert" th:text="${serviceError}"></div>
+
+            <div class="book-list-table-wrap">
+                <table class="book-list-table message-list-table message-list-table--sent">
+                    <thead>
+                    <tr>
+                        <th>To</th>
+                        <th>About</th>
+                        <th>Message</th>
+                        <th>Sent at</th>
+                        <th>Status</th>
+                        <th class="book-list-actions-header"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="message : ${messages}">
+                        <td th:text="${message.recipientUsername}">recipient</td>
+                        <td th:text="${message.about}">about</td>
+                        <td th:text="${message.content}">content</td>
+                        <td th:text="${#temporals.format(message.sentAt, 'dd MMM yyyy HH:mm')}">Sent at</td>
+                        <td th:text="${message.read ? 'Read' : 'Unread'}">Status</td>
+                        <td class="book-list-actions">
+                            <form th:if="${message.deletable}"
+                                  th:action="@{/messages/{id}/delete(id=${message.id}, page=${page})}"
+                                  method="post">
+                                <input type="hidden" name="returnTo" value="sent">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                <button type="submit" class="book-delete-btn">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(messages)}">
+                        <td class="book-list-empty" colspan="6">No sent messages yet.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <nav class="book-list-pagination" aria-label="Sent pagination">
+                <a th:if="${hasPrevious}"
+                   class="book-list-link"
+                   th:href="@{/messages/sent(page=${page - 1}, size=${pageSize})}">Previous page</a>
+                <span th:if="${totalPages > 0}" class="book-list-page-info" th:text="|Page ${page + 1} of ${totalPages}|">Page 1 of 1</span>
+                <a th:if="${hasNext}"
+                   class="book-list-link"
+                   th:href="@{/messages/sent(page=${page + 1}, size=${pageSize})}">Next page</a>
+            </nav>
+
+            <p class="book-list-back">
+                <a class="book-list-link" th:href="@{/messages}">Back</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<footer>
+    © 2026 All rights reserved
+</footer>
+
+</body>
+</html>

@@ -12,14 +12,15 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class MessageDto {
+public class MessageViewDto {
 
     private UUID id;
-    private UUID senderId;
-    private UUID receiverId;
+    private String senderUsername;
+    private String recipientUsername;
     private String about;
     private String content;
     private LocalDateTime sentAt;
-    private LocalDateTime readAt;
     private boolean read;
+    private boolean markableAsRead;
+    private boolean deletable;
 }

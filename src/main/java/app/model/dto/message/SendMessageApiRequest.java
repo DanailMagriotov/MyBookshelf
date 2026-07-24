@@ -15,5 +15,6 @@ public class SendMessageApiRequest {
 
     private UUID senderId;
     private UUID receiverId;
+    private String about;
     private String content;
 }

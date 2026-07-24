@@ -16,6 +16,7 @@ public class MessageMapper {
                 .id(message.getId())
                 .senderId(message.getSenderId())
                 .receiverId(message.getReceiverId())
+                .about(message.getAbout())
                 .content(message.getContent())
                 .sentAt(message.getSentAt())
                 .readAt(message.getReadAt())

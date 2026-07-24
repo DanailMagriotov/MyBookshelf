@@ -40,9 +40,20 @@ public class MessageRestController {
         return messageService.getInbox(userId);
     }
 
+    @GetMapping("/user/{userId}/sent")
+    public List<MessageResponse> getSent(@PathVariable UUID userId) {
+        return messageService.getSent(userId);
+    }
+
     @GetMapping("/user/{userId}/unread-count")
     public long getUnreadCount(@PathVariable UUID userId) {
         return messageService.getUnreadCount(userId);
+    }
+
+    @GetMapping("/{messageId}/inbox")
+    public MessageResponse getInboxMessage(@PathVariable UUID messageId,
+                                           @RequestParam UUID userId) {
+        return messageService.getInboxMessage(messageId, userId);
     }
 
     @PutMapping("/{messageId}/read")

@@ -36,6 +36,7 @@ public class MessageService {
         Message message = Message.builder()
                 .senderId(request.getSenderId())
                 .receiverId(request.getReceiverId())
+                .about(request.getAbout().trim())
                 .content(request.getContent().trim())
                 .sentAt(LocalDateTime.now())
                 .read(false)
@@ -53,8 +54,30 @@ public class MessageService {
                 .toList();
     }
 
+    public List<MessageResponse> getSent(UUID userId) {
+        return messageRepository.findBySenderIdAndHiddenFromSenderFalseOrderBySentAtDesc(userId)
+                .stream()
+                .map(MessageMapper::toMessageResponse)
+                .toList();
+    }
+
     public long getUnreadCount(UUID userId) {
         return messageRepository.countByReceiverIdAndReadFalse(userId);
+    }
+
+    @Transactional
+    public MessageResponse getInboxMessage(UUID messageId, UUID userId) {
+        Message message = findMessage(messageId);
+        assertReceiver(message, userId);
+
+        if (!message.isRead()) {
+            message.setRead(true);
+            message.setReadAt(LocalDateTime.now());
+            messageRepository.save(message);
+            log.info("Message {} marked as read by {}", messageId, userId);
+        }
+
+        return MessageMapper.toMessageResponse(message);
     }
 
     @Transactional
@@ -75,12 +98,21 @@ public class MessageService {
     @Transactional
     public void deleteMessage(UUID messageId, UUID userId) {
         Message message = findMessage(messageId);
-        if (!message.getReceiverId().equals(userId) && !message.getSenderId().equals(userId)) {
-            throw new MessageAccessDeniedException();
+
+        if (message.getSenderId().equals(userId)) {
+            message.setHiddenFromSender(true);
+            messageRepository.save(message);
+            log.info("Message {} hidden from sent list for {}", messageId, userId);
+            return;
         }
 
-        messageRepository.delete(message);
-        log.info("Message {} deleted by {}", messageId, userId);
+        if (message.getReceiverId().equals(userId)) {
+            messageRepository.delete(message);
+            log.info("Message {} deleted by receiver {}", messageId, userId);
+            return;
+        }
+
+        throw new MessageAccessDeniedException();
     }
 
     private Message findMessage(UUID messageId) {

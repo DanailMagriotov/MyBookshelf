@@ -1,0 +1,299 @@
+.scene {
+    --light-left: 18%;
+    --light-right: 18%;
+    --light-top: 12%;
+    --light-bottom: 10%;
+    --btn-size: clamp(52px, min(14vw, calc(58cqh / 3.2)), 118px);
+    --btn-gap: clamp(4px, 2.5cqw, 20px);
+    --label-size: clamp(7px, min(1.3vw, 2.2cqh), 13px);
+    --title-size: clamp(18px, min(2.6vw, 3.8cqh), 30px);
+    --unread-label-size: clamp(12px, min(1.3vw, 2.3cqh), 15px);
+    --title-spacer-height: calc(var(--title-size) * 1.15 + clamp(10px, 2cqh, 16px));
+    --hub-form-half-height: clamp(115px, 24cqh, 175px);
+    --actions-top-space: clamp(20px, 4.5cqh, 42px);
+
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100vw;
+    height: min(100dvh, calc(100vw * 941 / 1672));
+    overflow: hidden;
+
+    container-type: size;
+    container-name: scene;
+}
+
+.messages-hub-panel {
+    position: absolute;
+    top: var(--light-top);
+    right: var(--light-right);
+    bottom: var(--light-bottom);
+    left: var(--light-left);
+    z-index: 1;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.messages-hub-floating-title {
+    position: absolute;
+    left: 50%;
+    top: calc((50% - var(--hub-form-half-height) + var(--title-spacer-height)) / 2);
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    margin: 0;
+    font-size: var(--title-size);
+    text-align: center;
+    width: max-content;
+    max-width: calc(100% - 24px);
+}
+
+.messages-hub-title-spacer {
+    height: var(--title-spacer-height);
+    width: 100%;
+    flex-shrink: 0;
+    pointer-events: none;
+}
+
+.form-container.form-container--messages-hub {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    width: min(100%, 520px);
+    max-width: calc(100% - 16px);
+    padding: 0 clamp(6px, 1.5cqw, 12px);
+    box-sizing: border-box;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.form-container--messages-hub .messages-hub-title-spacer,
+.form-container--messages-hub .messages-hub-alert,
+.form-container--messages-hub .messages-hub-actions,
+.form-container--messages-hub .auth-link,
+.form-container--messages-hub .book-list-back {
+    width: 100%;
+}
+
+.form-container--messages-hub .auth-link {
+    margin-top: clamp(12px, 2.5cqh, 20px);
+    font-size: clamp(13px, min(1.3vw, 2.2cqh), 15px);
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.messages-hub-alert {
+    margin-bottom: clamp(8px, 1.5cqh, 12px);
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.messages-hub-actions {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: flex-end;
+    justify-content: center;
+    gap: var(--btn-gap);
+    width: auto;
+    max-width: 100%;
+    margin: 0 auto;
+    padding-top: var(--actions-top-space);
+}
+
+.messages-hub-inbox-group {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 1;
+    min-width: 0;
+}
+
+.messages-hub-unread-label {
+    position: absolute;
+    bottom: calc(100% + clamp(6px, 1.2cqh, 10px));
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+    padding: 0;
+    color: #3b210f;
+    font-size: var(--unread-label-size);
+    font-weight: 400;
+    font-family: "Trebuchet MS", sans-serif;
+    line-height: 1.2;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.messages-hub-unread-label span {
+    font-weight: 700;
+}
+
+.messages-hub-action-badge {
+    position: absolute;
+    right: clamp(2px, 0.45cqw, 5px);
+    bottom: clamp(2px, 0.45cqw, 5px);
+    min-width: clamp(14px, 2.4cqw, 20px);
+    height: clamp(14px, 2.4cqw, 20px);
+    padding: 0 clamp(3px, 0.45cqw, 5px);
+    border-radius: 999px;
+    border: 1px solid rgba(245, 240, 232, 0.85);
+    background: #3b210f;
+    color: #f5f0e8;
+    font-size: clamp(7px, min(1.1vw, 1.8cqh), 11px);
+    font-weight: 700;
+    font-family: "Trebuchet MS", sans-serif;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.messages-hub-action:hover .messages-hub-action-badge {
+    background: #f5f0e8;
+    color: #3b210f;
+    border-color: #3b210f;
+}
+
+.messages-hub-action {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(4px, 1cqh, 8px);
+    width: var(--btn-size);
+    flex-shrink: 1;
+    min-width: 0;
+
+    text-decoration: none;
+    color: #3b210f;
+
+    transition: transform 0.2s ease;
+}
+
+.messages-hub-action:hover {
+    transform: translateY(-2px);
+}
+
+.messages-hub-action-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    width: var(--btn-size);
+    height: var(--btn-size);
+
+    border-radius: clamp(6px, 1.4vw, 14px);
+    border: 1px solid #b68f69;
+    background: rgba(255, 255, 255, 0.55);
+
+    transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+.messages-hub-action-icon svg {
+    width: 58%;
+    height: 58%;
+    fill: none;
+    stroke: #3b210f;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+
+    transition: stroke 0.25s ease;
+}
+
+.messages-hub-action:hover .messages-hub-action-icon {
+    background: #3b210f;
+    border-color: #3b210f;
+}
+
+.messages-hub-action:hover .messages-hub-action-icon svg {
+    stroke: #f5f0e8;
+}
+
+.messages-hub-action-label {
+    font-family: "Trebuchet MS", sans-serif;
+    font-size: var(--label-size);
+    line-height: 1.1;
+    text-align: center;
+    color: #3b210f;
+    max-width: calc(var(--btn-size) * 1.35);
+    hyphens: auto;
+}
+
+footer {
+    position: fixed;
+    z-index: 2;
+    left: 20px;
+    bottom: 15px;
+    color: #6d5848;
+    font-size: 14px;
+}
+
+@container scene (max-height: 420px) {
+    .scene {
+        --btn-size: clamp(44px, min(12vw, calc(52cqh / 3.4)), 88px);
+        --btn-gap: clamp(6px, 2cqw, 14px);
+        --label-size: clamp(6px, 2cqh, 8px);
+        --title-size: clamp(16px, min(2.2vw, 3.2cqh), 24px);
+        --light-top: 10%;
+        --light-bottom: 8%;
+        --hub-form-half-height: clamp(95px, 22cqh, 145px);
+        --actions-top-space: clamp(14px, 3.5cqh, 28px);
+        --unread-label-size: clamp(12px, min(1.2vw, 2.2cqh), 14px);
+    }
+}
+
+@container scene (max-height: 320px) {
+    .scene {
+        --btn-size: clamp(38px, min(11vw, calc(48cqh / 3.6)), 72px);
+        --btn-gap: clamp(4px, 1.8cqw, 10px);
+        --label-size: clamp(6px, 2cqh, 8px);
+        --light-top: 9%;
+        --light-bottom: 7%;
+        --hub-form-half-height: clamp(80px, 20cqh, 120px);
+        --actions-top-space: clamp(10px, 2.8cqh, 20px);
+        --unread-label-size: clamp(11px, min(1.2vw, 2cqh), 13px);
+    }
+}
+
+@container scene (max-height: 260px) {
+    .scene {
+        --label-size: 6px;
+    }
+}
+
+@media (max-width: 480px) {
+    .scene {
+        --light-left: 14%;
+        --light-right: 14%;
+        --light-top: 10%;
+        --light-bottom: 8%;
+        --actions-top-space: clamp(12px, 3.2cqh, 24px);
+    }
+
+    .messages-hub-unread-label {
+        white-space: normal;
+        max-width: min(140px, 34vw);
+    }
+
+    footer {
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) and (max-height: 620px) {
+    .messages-hub-action-icon {
+        border-radius: 6px;
+    }
+}

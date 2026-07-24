@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>new message</title>
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
+    <link rel="stylesheet" th:href="@{/css/messages.css}">
+</head>
+
+<body>
+
+<div class="scene">
+    <img class="page-bg"
+         th:src="@{/images/login-background.png}"
+         alt="">
+
+    <div class="messages-page-panel">
+        <div class="messages-page-content">
+            <h1 class="messages-page-title">new message</h1>
+
+            <div th:if="${successMessage}" class="alert alert-success messages-page-alert" th:text="${successMessage}"></div>
+            <div th:if="${serviceError}" class="alert alert-error messages-page-alert" th:text="${serviceError}"></div>
+
+            <form class="messages-form" th:action="@{/messages/send}" method="post" th:object="${sendMessageFormRequest}">
+                <div class="messages-form-row">
+                    <label class="messages-label" for="receiverUsername">To</label>
+                    <input type="text" id="receiverUsername" th:field="*{receiverUsername}" placeholder="Recipient username">
+                </div>
+                <p class="field-error" th:if="${#fields.hasErrors('receiverUsername')}" th:errors="*{receiverUsername}"></p>
+
+                <div class="messages-form-row">
+                    <label class="messages-label" for="about">About</label>
+                    <input type="text" id="about" th:field="*{about}" maxlength="30" placeholder="Message subject">
+                </div>
+                <p class="field-error" th:if="${#fields.hasErrors('about')}" th:errors="*{about}"></p>
+
+                <div class="messages-form-row">
+                    <label class="messages-label" for="content">Message</label>
+                    <textarea id="content" th:field="*{content}" rows="4" placeholder="Write your message"></textarea>
+                </div>
+                <p class="field-error" th:if="${#fields.hasErrors('content')}" th:errors="*{content}"></p>
+
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <button type="submit" class="submit-btn">Send</button>
+            </form>
+
+            <p class="messages-page-back">
+                <a th:href="@{/messages}">Back</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<footer>
+    © 2026 All rights reserved
+</footer>
+
+</body>
+</html>

@@ -23,8 +23,15 @@ public interface MessageServiceClient {
     @GetMapping("/api/messages/user/{userId}/inbox")
     List<MessageDto> getInbox(@PathVariable("userId") UUID userId);
 
+    @GetMapping("/api/messages/user/{userId}/sent")
+    List<MessageDto> getSent(@PathVariable("userId") UUID userId);
+
     @GetMapping("/api/messages/user/{userId}/unread-count")
     long getUnreadCount(@PathVariable("userId") UUID userId);
+
+    @GetMapping("/api/messages/{messageId}/inbox")
+    MessageDto getInboxMessage(@PathVariable("messageId") UUID messageId,
+                               @RequestParam("userId") UUID userId);
 
     @PutMapping("/api/messages/{messageId}/read")
     MessageDto markAsRead(@PathVariable("messageId") UUID messageId,

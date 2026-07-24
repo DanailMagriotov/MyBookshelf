@@ -1,0 +1,39 @@
+.book-list-table-wrap {
+    max-height: calc(clamp(34px, 4.5cqh, 44px) + (8 * clamp(54px, 7.2cqh, 74px)));
+}
+
+.message-list-table--sent th:nth-child(1),
+.message-list-table--sent td:nth-child(1) {
+    width: 12%;
+}
+
+.message-list-table--sent th:nth-child(2),
+.message-list-table--sent td:nth-child(2) {
+    width: 16%;
+}
+
+.message-list-table--sent th:nth-child(3),
+.message-list-table--sent td:nth-child(3) {
+    width: 28%;
+}
+
+.message-list-table--sent th:nth-child(4),
+.message-list-table--sent td:nth-child(4) {
+    width: 18%;
+}
+
+.message-list-table--sent th:nth-child(5),
+.message-list-table--sent td:nth-child(5) {
+    width: 10%;
+}
+
+.message-list-table--sent th:nth-child(6),
+.message-list-table--sent td:nth-child(6) {
+    width: 16%;
+}
+
+@media (max-width: 640px) {
+    .message-list-table--sent {
+        min-width: 860px;
+    }
+}

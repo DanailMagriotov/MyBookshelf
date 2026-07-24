@@ -41,7 +41,7 @@ public class HomeActionController {
     @GetMapping("/messages")
     public String messages(HttpSession session) {
         authenticationGuard.requireAuthenticated(userSessionService.get(session).orElse(null));
-        return "redirect:/home";
+        return "redirect:/messages";
     }
 
     @GetMapping("/my-profile")

@@ -1,7 +1,9 @@
 package app.web;
 
+import app.exception.MessageServiceUnavailableException;
 import app.model.entity.user.UserRole;
 import app.service.book.BookService;
+import app.service.message.MessageAppService;
 import app.service.user.UserSessionService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
@@ -13,10 +15,14 @@ public class HomeController {
 
     private final UserSessionService userSessionService;
     private final BookService bookService;
+    private final MessageAppService messageAppService;
 
-    public HomeController(UserSessionService userSessionService, BookService bookService) {
+    public HomeController(UserSessionService userSessionService,
+                          BookService bookService,
+                          MessageAppService messageAppService) {
         this.userSessionService = userSessionService;
         this.bookService = bookService;
+        this.messageAppService = messageAppService;
     }
 
     @GetMapping("/home")
@@ -26,6 +32,11 @@ public class HomeController {
             model.addAttribute("username", userSession.getUsername());
             model.addAttribute("isAdmin", userSession.getRole() == UserRole.ADMIN);
             model.addAttribute("bookshelfCount", bookService.countVisibleBooksForUser(userSession.getId()));
+            try {
+                model.addAttribute("unreadMessageCount", messageAppService.getUnreadCount(userSession.getId()));
+            } catch (MessageServiceUnavailableException ex) {
+                model.addAttribute("unreadMessageCount", 0L);
+            }
         });
         return "home";
     }

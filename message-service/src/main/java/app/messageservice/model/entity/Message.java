@@ -34,6 +34,9 @@ public class Message {
     @Column(name = "receiver_id", nullable = false)
     private UUID receiverId;
 
+    @Column(nullable = false, length = 30)
+    private String about;
+
     @Column(nullable = false, length = 1000)
     private String content;
 
@@ -45,4 +48,8 @@ public class Message {
 
     @Column(name = "is_read", nullable = false)
     private boolean read;
+
+    @Column(name = "hidden_from_sender", nullable = false)
+    @Builder.Default
+    private boolean hiddenFromSender = false;
 }
