@@ -113,7 +113,7 @@ public class MessagesController {
         String receiverUsername = request.getReceiverUsername().trim();
         request.setReceiverUsername(receiverUsername);
 
-        if (!userService.existsByUsername(receiverUsername)) {
+        if (userService.isUnknownUsername(receiverUsername)) {
             bindingResult.rejectValue("receiverUsername", "receiver.invalid", "Invalid username");
             return "messages-new";
         }

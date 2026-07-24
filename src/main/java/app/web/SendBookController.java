@@ -62,7 +62,7 @@ public class SendBookController {
         String receiverUsername = request.getReceiverUsername().trim();
         request.setReceiverUsername(receiverUsername);
 
-        if (!userService.existsByUsername(receiverUsername)) {
+        if (userService.isUnknownUsername(receiverUsername)) {
             bindingResult.rejectValue("receiverUsername", "receiver.invalid", "Invalid username");
             populateForm(model, userSession.getId());
             return "send-book";

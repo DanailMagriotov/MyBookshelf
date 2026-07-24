@@ -106,11 +106,11 @@ public class UserService {
                 .orElse(false);
     }
 
-    public boolean existsByUsername(String username) {
+    public boolean isUnknownUsername(String username) {
         if (!StringUtils.hasText(username)) {
-            return false;
+            return true;
         }
-        return userRepository.existsByUsername(username.trim());
+        return !userRepository.existsByUsername(username.trim());
     }
 
     public boolean matchesCurrentPassword(UUID userId, String rawPassword) {
