@@ -95,6 +95,17 @@ public class UserService {
         userRepository.deleteById(userId);
     }
 
+    @Transactional
+    public boolean deleteUserByAdmin(UUID userId) {
+        return userRepository.findById(userId)
+                .filter(user -> user.getRole() == UserRole.USER)
+                .map(user -> {
+                    deleteAccount(userId);
+                    return true;
+                })
+                .orElse(false);
+    }
+
     public boolean existsByUsername(String username) {
         if (!StringUtils.hasText(username)) {
             return false;

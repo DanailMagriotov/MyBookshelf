@@ -63,6 +63,7 @@ public class UserMapper {
         }
 
         return AdminUserDto.builder()
+                .id(user.getId())
                 .username(user.getUsername())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())

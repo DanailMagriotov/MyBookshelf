@@ -12,7 +12,13 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/users")
@@ -47,6 +53,24 @@ public class UsersController {
         model.addAttribute("hasNext", userPage.hasNext());
 
         return "users";
+    }
+
+    @PostMapping("/delete/{userId}")
+    public String deleteUser(@PathVariable UUID userId,
+                             @RequestParam(defaultValue = "0") int page,
+                             HttpSession session,
+                             RedirectAttributes redirectAttributes) {
+        requireAdmin(session);
+
+        if (userService.deleteUserByAdmin(userId)) {
+            redirectAttributes.addFlashAttribute("successMessage", "User account deleted successfully.");
+        } else {
+            redirectAttributes.addFlashAttribute("errorMessage", "This account cannot be deleted.");
+        }
+
+        return "redirect:/users?page=" + page
+                + "&size=" + UserService.USERS_PAGE_SIZE
+                + "&sort=username,asc";
     }
 
     private void requireAdmin(HttpSession session) {

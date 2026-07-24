@@ -30,12 +30,97 @@
 
 .user-list-table th:nth-child(7),
 .user-list-table td:nth-child(7) {
-    width: 8%;
+    width: 7%;
     text-align: center;
+}
+
+.user-list-table th:nth-child(8),
+.user-list-table td:nth-child(8) {
+    width: 9%;
 }
 
 @media (max-width: 640px) {
     .user-list-table {
-        min-width: 760px;
+        min-width: 860px;
     }
+}
+
+.delete-dialog {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.delete-dialog[hidden] {
+    display: none;
+}
+
+.delete-dialog__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(59, 33, 15, 0.45);
+}
+
+.delete-dialog__panel {
+    position: relative;
+    z-index: 1;
+    width: min(100%, 360px);
+    padding: clamp(18px, 3cqw, 24px);
+
+    border-radius: 12px;
+    border: 1px solid rgba(180, 40, 40, 0.35);
+    background: rgba(255, 250, 245, 0.97);
+    box-shadow: 0 12px 32px rgba(59, 33, 15, 0.2);
+}
+
+.delete-dialog__message {
+    margin-bottom: clamp(14px, 2.5cqh, 20px);
+    color: #3b210f;
+    font-size: clamp(14px, min(1.5vw, 2.4cqh), 16px);
+    line-height: 1.45;
+    text-align: center;
+    font-family: "Trebuchet MS", sans-serif;
+}
+
+.delete-dialog__actions {
+    display: flex;
+    gap: clamp(10px, 2cqw, 14px);
+}
+
+.delete-dialog__btn {
+    flex: 1;
+    height: clamp(40px, min(4.8vh, 6.5cqh), 46px);
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+
+    font-size: clamp(15px, min(1.6vw, 2.6cqh), 17px);
+    font-weight: 500;
+    font-family: "Trebuchet MS", sans-serif;
+
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.delete-dialog__btn--confirm {
+    background: #b42828;
+    color: #fff;
+}
+
+.delete-dialog__btn--confirm:hover {
+    background: #962020;
+    transform: translateY(-1px);
+}
+
+.delete-dialog__btn--cancel {
+    background: rgba(59, 33, 15, 0.1);
+    color: #3b210f;
+}
+
+.delete-dialog__btn--cancel:hover {
+    background: rgba(59, 33, 15, 0.16);
+    transform: translateY(-1px);
 }
