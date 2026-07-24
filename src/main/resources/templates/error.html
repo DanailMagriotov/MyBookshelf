@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error</title>
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
+    <link rel="stylesheet" th:href="@{/css/error.css}">
+</head>
+
+<body>
+
+<div class="scene">
+    <img class="page-bg"
+         th:src="@{/images/login-background.png}"
+         alt="">
+
+    <div class="error-panel">
+        <div class="error-content">
+            <h1 class="error-title">Something went wrong</h1>
+            <p class="error-status" th:text="|Error ${status != null ? status : 500}|">Error 500</p>
+            <p class="error-message"
+               th:text="${message != null ? message : (error != null ? error : 'An unexpected error occurred. Please try again.')}">
+                An unexpected error occurred. Please try again.
+            </p>
+            <div class="error-back">
+                <a th:href="@{/home}">Back to home</a>
+                <span class="error-separator">|</span>
+                <form class="error-back-form" th:action="@{/logout}" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <button type="submit" class="error-back-link">Back to main</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer>
+    © 2026 All rights reserved
+</footer>
+
+</body>
+</html>
