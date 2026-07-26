@@ -7,7 +7,6 @@ import app.exception.SelfMessageException;
 import app.model.dto.message.MessageDto;
 import app.model.dto.message.MessageViewDto;
 import app.model.dto.message.SendMessageApiRequest;
-import app.model.dto.message.SendMessageApiRequest;
 import app.model.dto.message.SendMessageFormRequest;
 import app.model.entity.user.User;
 import app.repository.user.UserRepository;
