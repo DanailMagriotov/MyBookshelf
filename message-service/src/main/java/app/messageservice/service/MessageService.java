@@ -9,6 +9,8 @@ import app.messageservice.model.entity.Message;
 import app.messageservice.repository.MessageRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +30,7 @@ public class MessageService {
     }
 
     @Transactional
+    @CacheEvict(value = "unreadCounts", allEntries = true)
     public MessageResponse sendMessage(SendMessageRequest request) {
         if (request.getSenderId().equals(request.getReceiverId())) {
             throw new MessageAccessDeniedException();
@@ -63,11 +66,13 @@ public class MessageService {
                 .toList();
     }
 
+    @Cacheable(value = "unreadCounts", key = "#userId")
     public long getUnreadCount(UUID userId) {
         return messageRepository.countByReceiverIdAndHiddenFromReceiverFalseAndReadFalse(userId);
     }
 
     @Transactional
+    @CacheEvict(value = "unreadCounts", allEntries = true)
     public MessageResponse getInboxMessage(UUID messageId, UUID userId) {
         Message message = findMessage(messageId);
         assertReceiver(message, userId);
@@ -83,6 +88,7 @@ public class MessageService {
     }
 
     @Transactional
+    @CacheEvict(value = "unreadCounts", allEntries = true)
     public MessageResponse markAsRead(UUID messageId, UUID userId) {
         Message message = findMessage(messageId);
         assertReceiver(message, userId);
@@ -98,6 +104,7 @@ public class MessageService {
     }
 
     @Transactional
+    @CacheEvict(value = "unreadCounts", allEntries = true)
     public void deleteMessage(UUID messageId, UUID userId) {
         Message message = findMessage(messageId);
 

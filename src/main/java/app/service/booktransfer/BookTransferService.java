@@ -3,6 +3,7 @@ package app.service.booktransfer;
 import app.exception.AccessDeniedException;
 import app.exception.BookNotAvailableForTransferException;
 import app.exception.InvalidReturnDeadlineException;
+import app.exception.MessageServiceUnavailableException;
 import app.exception.NotAuthenticatedException;
 import app.exception.ReceiverNotFoundException;
 import app.exception.SelfTransferException;
@@ -16,9 +17,12 @@ import app.model.entity.user.User;
 import app.repository.book.BookRepository;
 import app.repository.booktransfer.BookTransferRepository;
 import app.repository.user.UserRepository;
-import org.springframework.dao.DataIntegrityViolationException;
+import app.service.message.MessageAppService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,15 +39,19 @@ public class BookTransferService {
     private final BookRepository bookRepository;
     private final BookTransferRepository bookTransferRepository;
     private final UserRepository userRepository;
+    private final MessageAppService messageAppService;
 
     public BookTransferService(BookRepository bookRepository,
                                BookTransferRepository bookTransferRepository,
-                               UserRepository userRepository) {
+                               UserRepository userRepository,
+                               MessageAppService messageAppService) {
         this.bookRepository = bookRepository;
         this.bookTransferRepository = bookTransferRepository;
         this.userRepository = userRepository;
+        this.messageAppService = messageAppService;
     }
 
+    @Cacheable(value = "sendableBooks", key = "#ownerId")
     public List<BookOptionDto> getSendableBooks(UUID ownerId) {
         return bookRepository.findByOwner_IdAndOwnerLabelOrderByTitleAsc(ownerId, BookMapper.DEFAULT_OWNER_LABEL)
                 .stream()
@@ -56,6 +64,7 @@ public class BookTransferService {
     }
 
     @Transactional
+    @CacheEvict(value = {"bookshelfCounts", "sendableBooks"}, allEntries = true)
     public void sendBook(UUID senderId, SendBookRequest request) {
         User sender = userRepository.findById(senderId)
                 .orElseThrow(NotAuthenticatedException::new);
@@ -97,6 +106,7 @@ public class BookTransferService {
     }
 
     @Transactional
+    @CacheEvict(value = {"bookshelfCounts", "sendableBooks"}, allEntries = true)
     public void returnBook(UUID receiverId, UUID bookId) {
         BookTransfer transfer = bookTransferRepository.findByBook_IdAndReceiver_Id(bookId, receiverId)
                 .orElseThrow(AccessDeniedException::new);
@@ -130,6 +140,7 @@ public class BookTransferService {
     }
 
     @Transactional
+    @CacheEvict(value = {"bookshelfCounts", "sendableBooks"}, allEntries = true)
     public void updateReturnDeadline(UUID ownerId, UUID bookId, LocalDate returnDeadline) {
         BookTransfer transfer = findOwnedTransfer(ownerId, bookId);
         LocalDate currentDeadline = transfer.getReturnAt().toLocalDate();
@@ -140,8 +151,48 @@ public class BookTransferService {
 
         transfer.setReturnAt(returnDeadline.atTime(23, 59));
         transfer.setUpdatedAt(LocalDateTime.now());
+        transfer.setOverdueReminderSent(false);
         bookTransferRepository.save(transfer);
         log.info("User {} updated return deadline for book {} to {}", ownerId, bookId, returnDeadline);
+    }
+
+    @Transactional
+    public int sendOverdueTransferReminders() {
+        List<BookTransfer> overdueTransfers = bookTransferRepository
+                .findByReturnAtBeforeAndOverdueReminderSentFalse(LocalDateTime.now());
+        int notifiedCount = 0;
+
+        for (BookTransfer transfer : overdueTransfers) {
+            Book book = transfer.getBook();
+            User sender = transfer.getSender();
+            User receiver = transfer.getReceiver();
+
+            if (book == null || sender == null || receiver == null) {
+                continue;
+            }
+
+            String bookLabel = book.getAuthor() + " - " + book.getTitle();
+            String receiverMessage = "Hello, the return deadline for the book \""
+                    + bookLabel
+                    + "\" has expired. Please return it to its owner.";
+            String senderMessage = "The book \"" + bookLabel + "\" has an expired return deadline.";
+
+            try {
+                messageAppService.sendSystemMessage(receiver.getId(), receiverMessage);
+                messageAppService.sendSystemMessage(sender.getId(), senderMessage);
+            } catch (MessageServiceUnavailableException ex) {
+                log.error("Failed to send overdue return reminders for transfer {}", transfer.getId());
+                continue;
+            }
+
+            transfer.setOverdueReminderSent(true);
+            bookTransferRepository.save(transfer);
+            notifiedCount++;
+            log.info("Sent overdue return reminders for book {} to users {} and {}",
+                    book.getId(), receiver.getId(), sender.getId());
+        }
+
+        return notifiedCount;
     }
 
     private BookTransfer findOwnedTransfer(UUID ownerId, UUID bookId) {

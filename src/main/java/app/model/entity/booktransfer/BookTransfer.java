@@ -44,4 +44,8 @@ public class BookTransfer {
 
     @Column(name = "return_time", nullable = false)
     private LocalDateTime returnAt;
+
+    @Column(name = "overdue_reminder_sent", nullable = false)
+    @Builder.Default
+    private boolean overdueReminderSent = false;
 }

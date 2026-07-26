@@ -16,6 +16,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,6 +43,7 @@ public class BookService {
     }
 
     @Transactional
+    @CacheEvict(value = {"bookshelfCounts", "sendableBooks"}, allEntries = true)
     public void addBook(UUID ownerId, AddBookRequest request) {
         User owner = userRepository.findById(ownerId)
                 .orElseThrow(NotAuthenticatedException::new);
@@ -51,6 +54,7 @@ public class BookService {
     }
 
     @Transactional
+    @CacheEvict(value = {"bookshelfCounts", "sendableBooks"}, allEntries = true)
     public void deleteBook(UUID ownerId, UUID bookId) {
         Book book = bookRepository.findByIdAndOwner_Id(bookId, ownerId)
                 .orElseThrow(NotAuthenticatedException::new);
@@ -76,6 +80,7 @@ public class BookService {
                 .map(book -> toMyBookshelfBookDto(book, ownerId));
     }
 
+    @Cacheable(value = "bookshelfCounts", key = "#userId")
     public long countVisibleBooksForUser(UUID userId) {
         return bookRepository.countVisibleBooksForUser(userId);
     }

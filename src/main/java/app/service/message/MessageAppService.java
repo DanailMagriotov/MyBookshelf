@@ -7,9 +7,11 @@ import app.exception.SelfMessageException;
 import app.model.dto.message.MessageDto;
 import app.model.dto.message.MessageViewDto;
 import app.model.dto.message.SendMessageApiRequest;
+import app.model.dto.message.SendMessageApiRequest;
 import app.model.dto.message.SendMessageFormRequest;
 import app.model.entity.user.User;
 import app.repository.user.UserRepository;
+import app.service.user.SystemUserService;
 import feign.FeignException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,13 +35,18 @@ public class MessageAppService {
 
     private static final Logger log = LoggerFactory.getLogger(MessageAppService.class);
 
+    private static final String SYSTEM_MESSAGE_ABOUT = "Overdue return reminder";
+
     private final MessageServiceClient messageServiceClient;
     private final UserRepository userRepository;
+    private final SystemUserService systemUserService;
 
     public MessageAppService(MessageServiceClient messageServiceClient,
-                             UserRepository userRepository) {
+                             UserRepository userRepository,
+                             SystemUserService systemUserService) {
         this.messageServiceClient = messageServiceClient;
         this.userRepository = userRepository;
+        this.systemUserService = systemUserService;
     }
 
     public List<MessageViewDto> getInbox(UUID userId) {
@@ -113,6 +120,18 @@ public class MessageAppService {
 
         call(() -> messageServiceClient.sendMessage(apiRequest));
         log.info("User {} sent a message to {}", senderId, receiver.getUsername());
+    }
+
+    public void sendSystemMessage(UUID receiverId, String content) {
+        SendMessageApiRequest apiRequest = SendMessageApiRequest.builder()
+                .senderId(systemUserService.getSystemUserId())
+                .receiverId(receiverId)
+                .about(SYSTEM_MESSAGE_ABOUT)
+                .content(content.trim())
+                .build();
+
+        call(() -> messageServiceClient.sendMessage(apiRequest));
+        log.info("System message sent to user {}", receiverId);
     }
 
     public void markAsRead(UUID userId, UUID messageId) {
