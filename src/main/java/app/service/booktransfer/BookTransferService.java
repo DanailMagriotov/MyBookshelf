@@ -17,6 +17,8 @@ import app.repository.book.BookRepository;
 import app.repository.booktransfer.BookTransferRepository;
 import app.repository.user.UserRepository;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +29,8 @@ import java.util.UUID;
 
 @Service
 public class BookTransferService {
+
+    private static final Logger log = LoggerFactory.getLogger(BookTransferService.class);
 
     private final BookRepository bookRepository;
     private final BookTransferRepository bookTransferRepository;
@@ -86,6 +90,7 @@ public class BookTransferService {
 
         try {
             bookTransferRepository.saveAndFlush(transfer);
+            log.info("User {} sent book {} to {}", senderId, book.getId(), receiverUsername);
         } catch (DataIntegrityViolationException ex) {
             throw new BookNotAvailableForTransferException();
         }
@@ -106,6 +111,7 @@ public class BookTransferService {
 
         bookTransferRepository.delete(transfer);
         bookTransferRepository.flush();
+        log.info("User {} returned book {}", receiverId, bookId);
     }
 
     public Book getOwnedTransferBook(UUID ownerId, UUID bookId) {
@@ -135,6 +141,7 @@ public class BookTransferService {
         transfer.setReturnAt(returnDeadline.atTime(23, 59));
         transfer.setUpdatedAt(LocalDateTime.now());
         bookTransferRepository.save(transfer);
+        log.info("User {} updated return deadline for book {} to {}", ownerId, bookId, returnDeadline);
     }
 
     private BookTransfer findOwnedTransfer(UUID ownerId, UUID bookId) {

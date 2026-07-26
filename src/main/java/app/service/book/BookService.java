@@ -14,6 +14,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +25,8 @@ import java.util.UUID;
 public class BookService {
 
     public static final int BOOKS_PAGE_SIZE = 6;
+
+    private static final Logger log = LoggerFactory.getLogger(BookService.class);
 
     private final BookRepository bookRepository;
     private final BookTransferRepository bookTransferRepository;
@@ -43,6 +47,7 @@ public class BookService {
 
         Book book = BookMapper.toBookEntity(request, owner);
         bookRepository.save(book);
+        log.info("User {} added book '{}'", ownerId, book.getTitle());
     }
 
     @Transactional
@@ -59,6 +64,7 @@ public class BookService {
         }
 
         bookRepository.delete(book);
+        log.info("User {} deleted book {}", ownerId, bookId);
     }
 
     public Page<MyBookshelfBookDto> getBooksByOwner(UUID ownerId, Pageable pageable) {

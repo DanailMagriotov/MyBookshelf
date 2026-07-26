@@ -22,14 +22,14 @@ public class WebExceptionHandler {
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public String handleMethodNotSupported(HttpRequestMethodNotSupportedException ex, Model model) {
+    public String handleMethodNotSupported(Model model) {
         model.addAttribute("status", 405);
         model.addAttribute("message", "This action is not supported.");
         return "error";
     }
 
     @ExceptionHandler(NoResourceFoundException.class)
-    public String handleResourceNotFound(NoResourceFoundException ex, Model model) {
+    public String handleResourceNotFound(Model model) {
         model.addAttribute("status", 404);
         model.addAttribute("message", "The requested page was not found.");
         return "error";
