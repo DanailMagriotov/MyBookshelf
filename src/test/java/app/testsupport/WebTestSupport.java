@@ -8,6 +8,7 @@ import app.web.WebExceptionHandler;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
+import org.springframework.lang.NonNull;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.setup.StandaloneMockMvcBuilder;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
@@ -78,9 +79,9 @@ public final class WebTestSupport {
     private static View noopView() {
         return new AbstractView() {
             @Override
-            protected void renderMergedOutputModel(Map<String, Object> model,
-                                                   HttpServletRequest request,
-                                                   HttpServletResponse response) {
+            protected void renderMergedOutputModel(@NonNull Map<String, Object> model,
+                                                   @NonNull HttpServletRequest request,
+                                                   @NonNull HttpServletResponse response) {
                 // Standalone MockMvc only needs a resolvable view name.
             }
 

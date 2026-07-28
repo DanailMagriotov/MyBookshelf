@@ -1,7 +1,6 @@
 package app.web;
 
 import app.exception.EmailAlreadyExistsException;
-import app.mapper.user.UserMapper;
 import app.model.dto.user.AdminUserDto;
 import app.model.dto.user.UserSession;
 import app.model.entity.user.Region;

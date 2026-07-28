@@ -28,7 +28,7 @@ class MessageExceptionHandlerTest {
     }
 
     @Test
-    void handleValidation_returns400() throws Exception {
+    void handleValidation_returns400() {
         var ex = org.mockito.Mockito.mock(org.springframework.web.bind.MethodArgumentNotValidException.class);
         var bindingResult = org.mockito.Mockito.mock(org.springframework.validation.BindingResult.class);
         var fieldError = new org.springframework.validation.FieldError("request", "about", "Message subject is required");
@@ -44,7 +44,7 @@ class MessageExceptionHandlerTest {
     }
 
     @Test
-    void handleValidation_returnsDefaultMessageWhenFieldErrorsMissing() throws Exception {
+    void handleValidation_returnsDefaultMessageWhenFieldErrorsMissing() {
         var ex = org.mockito.Mockito.mock(org.springframework.web.bind.MethodArgumentNotValidException.class);
         var bindingResult = org.mockito.Mockito.mock(org.springframework.validation.BindingResult.class);
 

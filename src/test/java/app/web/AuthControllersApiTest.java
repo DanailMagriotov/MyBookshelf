@@ -46,15 +46,13 @@ class AuthControllersApiTest {
     @InjectMocks
     private LoginController loginController;
 
-    private RegisterController registerController;
     private MockMvc loginMockMvc;
     private MockMvc registerMockMvc;
 
     @BeforeEach
     void setUp() {
-        registerController = new RegisterController(userService);
         loginMockMvc = standaloneWithPageable(loginController).build();
-        registerMockMvc = standaloneWithPageable(registerController).build();
+        registerMockMvc = standaloneWithPageable(new RegisterController(userService)).build();
     }
 
     @Test

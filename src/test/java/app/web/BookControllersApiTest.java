@@ -6,7 +6,6 @@ import app.exception.SelfTransferException;
 import app.model.dto.book.EditTransferRequest;
 import app.model.dto.book.MyBookshelfBookDto;
 import app.model.entity.book.Book;
-import app.model.entity.book.Category;
 import app.service.book.BookService;
 import app.service.booktransfer.BookTransferService;
 import app.service.user.UserService;
