@@ -199,6 +199,7 @@ public class MessageAppService {
         try {
             return supplier.get();
         } catch (FeignException ex) {
+            log.error("Message service call failed", ex);
             throw new MessageServiceUnavailableException(ex);
         }
     }
@@ -207,6 +208,7 @@ public class MessageAppService {
         try {
             runnable.run();
         } catch (FeignException ex) {
+            log.error("Message service call failed", ex);
             throw new MessageServiceUnavailableException(ex);
         }
     }

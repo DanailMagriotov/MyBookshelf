@@ -1,0 +1,10 @@
+{
+  "properties": [
+    {
+      "name": "app.scheduling.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Enables or disables scheduled task execution.",
+      "defaultValue": true
+    }
+  ]
+}

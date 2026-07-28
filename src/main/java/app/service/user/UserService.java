@@ -17,6 +17,8 @@ import app.model.entity.user.UserRole;
 import app.repository.book.BookRepository;
 import app.repository.booktransfer.BookTransferRepository;
 import app.repository.user.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +28,8 @@ import java.util.UUID;
 
 @Service
 public class UserService {
+
+    private static final Logger log = LoggerFactory.getLogger(UserService.class);
 
     public static final int USERS_PAGE_SIZE = 6;
 
@@ -58,6 +62,7 @@ public class UserService {
         UserRole role = userRepository.count() == 0 ? UserRole.ADMIN : UserRole.USER;
         User userEntity = UserMapper.toUserEntity(userRegRequest, encodedPassword, role);
         userRepository.save(userEntity);
+        log.info("Registered user '{}' with role {}", userRegRequest.getUsername(), role);
     }
 
     @Transactional
@@ -79,6 +84,7 @@ public class UserService {
         }
 
         User savedUser = userRepository.save(user);
+        log.info("User {} updated profile", userId);
         return UserMapper.toUserSession(savedUser);
     }
 
@@ -93,6 +99,7 @@ public class UserService {
         bookTransferRepository.deleteByReceiver_Id(userId);
         bookRepository.deleteByOwner_Id(userId);
         userRepository.deleteById(userId);
+        log.info("Deleted user account {}", userId);
     }
 
     @Transactional
@@ -103,7 +110,10 @@ public class UserService {
                     deleteAccount(userId);
                     return true;
                 })
-                .orElse(false);
+                .orElseGet(() -> {
+                    log.warn("Admin delete rejected for user {}", userId);
+                    return false;
+                });
     }
 
     public boolean isUnknownUsername(String username) {
