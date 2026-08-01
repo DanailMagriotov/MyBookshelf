@@ -1,7 +1,6 @@
 package app.web;
 
 import app.exception.MessageServiceUnavailableException;
-import app.model.entity.user.UserRole;
 import app.service.book.BookService;
 import app.service.message.MessageAppService;
 import app.service.user.UserSessionService;
@@ -30,7 +29,7 @@ public class HomeController {
         userSessionService.get(session).ifPresent(userSession -> {
             model.addAttribute("userSession", userSession);
             model.addAttribute("username", userSession.getUsername());
-            model.addAttribute("isAdmin", userSession.getRole() == UserRole.ADMIN);
+            model.addAttribute("isAdmin", userSession.getRole().isAdmin());
             model.addAttribute("bookshelfCount", bookService.countVisibleBooksForUser(userSession.getId()));
             try {
                 model.addAttribute("unreadMessageCount", messageAppService.getUnreadCount(userSession.getId()));

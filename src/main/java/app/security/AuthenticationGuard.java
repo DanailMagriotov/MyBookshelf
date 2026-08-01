@@ -3,7 +3,6 @@ package app.security;
 import app.exception.NotAuthenticatedException;
 import app.exception.AccessDeniedException;
 import app.model.dto.user.UserSession;
-import app.model.entity.user.UserRole;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -17,7 +16,7 @@ public class AuthenticationGuard {
 
     public void requireAdmin(UserSession userSession) {
         requireAuthenticated(userSession);
-        if (userSession.getRole() != UserRole.ADMIN) {
+        if (!userSession.getRole().isAdmin()) {
             throw new AccessDeniedException();
         }
     }

@@ -9,6 +9,7 @@ import app.model.dto.message.MessageViewDto;
 import app.model.dto.message.SendMessageApiRequest;
 import app.model.dto.message.SendMessageFormRequest;
 import app.model.entity.user.User;
+import app.model.entity.user.UserRole;
 import app.repository.user.UserRepository;
 import app.service.user.SystemUserService;
 import feign.FeignException;
@@ -35,6 +36,7 @@ public class MessageAppService {
     private static final Logger log = LoggerFactory.getLogger(MessageAppService.class);
 
     private static final String SYSTEM_MESSAGE_ABOUT = "Overdue return reminder";
+    public static final String ROLE_CHANGE_NOTIFICATION_ABOUT = "Role change notification";
 
     private final MessageServiceClient messageServiceClient;
     private final UserRepository userRepository;
@@ -122,15 +124,26 @@ public class MessageAppService {
     }
 
     public void sendSystemMessage(UUID receiverId, String content) {
+        sendSystemMessage(receiverId, SYSTEM_MESSAGE_ABOUT, content);
+    }
+
+    public void sendSystemMessage(UUID receiverId, String about, String content) {
         SendMessageApiRequest apiRequest = SendMessageApiRequest.builder()
                 .senderId(systemUserService.getSystemUserId())
                 .receiverId(receiverId)
-                .about(SYSTEM_MESSAGE_ABOUT)
+                .about(about.trim())
                 .content(content.trim())
                 .build();
 
         call(() -> messageServiceClient.sendMessage(apiRequest));
         log.info("System message sent to user {}", receiverId);
+    }
+
+    public void sendRoleChangeNotification(UUID receiverId, UserRole newRole) {
+        String content = newRole == UserRole.ADMIN
+                ? "Congratulations! You are promoted to ADMIN."
+                : "Sorry, you are demoted to USER.";
+        sendSystemMessage(receiverId, ROLE_CHANGE_NOTIFICATION_ABOUT, content);
     }
 
     public void markAsRead(UUID userId, UUID messageId) {

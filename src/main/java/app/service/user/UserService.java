@@ -1,6 +1,7 @@
 package app.service.user;
 
 import app.exception.EmailAlreadyExistsException;
+import app.exception.MessageServiceUnavailableException;
 import app.exception.NotAuthenticatedException;
 import app.exception.UsernameAlreadyExistsException;
 import app.mapper.user.UserMapper;
@@ -8,17 +9,18 @@ import app.model.dto.user.AdminUserDto;
 import app.model.dto.user.MyProfileUpdateRequest;
 import app.model.dto.user.UserRegRequest;
 import app.model.dto.user.UserSession;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import app.model.entity.user.User;
 import app.model.entity.user.UserRole;
 import app.repository.book.BookRepository;
 import app.repository.booktransfer.BookTransferRepository;
 import app.repository.user.UserRepository;
+import app.service.message.MessageAppService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,15 +39,18 @@ public class UserService {
     private final BookRepository bookRepository;
     private final BookTransferRepository bookTransferRepository;
     private final PasswordEncoder passwordEncoder;
+    private final MessageAppService messageAppService;
 
     public UserService(UserRepository userRepository,
                        BookRepository bookRepository,
                        BookTransferRepository bookTransferRepository,
-                       PasswordEncoder passwordEncoder) {
+                       PasswordEncoder passwordEncoder,
+                       MessageAppService messageAppService) {
         this.userRepository = userRepository;
         this.bookRepository = bookRepository;
         this.bookTransferRepository = bookTransferRepository;
         this.passwordEncoder = passwordEncoder;
+        this.messageAppService = messageAppService;
     }
 
     @Transactional
@@ -59,7 +64,7 @@ public class UserService {
         }
 
         String encodedPassword = passwordEncoder.encode(userRegRequest.getPassword());
-        UserRole role = userRepository.count() == 0 ? UserRole.ADMIN : UserRole.USER;
+        UserRole role = userRepository.count() == 0 ? UserRole.MASTER_ADMIN : UserRole.USER;
         User userEntity = UserMapper.toUserEntity(userRegRequest, encodedPassword, role);
         userRepository.save(userEntity);
         log.info("Registered user '{}' with role {}", userRegRequest.getUsername(), role);
@@ -116,6 +121,75 @@ public class UserService {
                 });
     }
 
+    @Transactional
+    public boolean changeUserRoleByAdmin(UUID targetUserId,
+                                         UserRole newRole,
+                                         UUID actingAdminId,
+                                         UserRole actingAdminRole) {
+        if (!actingAdminRole.isAdmin()) {
+            log.warn("Role change rejected: actor {} is not admin", actingAdminId);
+            return false;
+        }
+
+        if (actingAdminId.equals(targetUserId)) {
+            log.warn("Role change rejected: user {} attempted to change own role", actingAdminId);
+            return false;
+        }
+
+        if (newRole == UserRole.MASTER_ADMIN) {
+            log.warn("Role change rejected: cannot assign MASTER_ADMIN via admin UI");
+            return false;
+        }
+
+        User targetUser = userRepository.findById(targetUserId).orElse(null);
+        if (targetUser == null) {
+            log.warn("Role change rejected: user {} not found", targetUserId);
+            return false;
+        }
+
+        if (SystemUserService.SYSTEM_USERNAME.equals(targetUser.getUsername())) {
+            log.warn("Role change rejected: system user cannot be changed");
+            return false;
+        }
+
+        if (targetUser.getRole() == UserRole.MASTER_ADMIN) {
+            log.warn("Role change rejected: master admin role cannot be changed");
+            return false;
+        }
+
+        if (targetUser.getRole() == newRole) {
+            log.warn("Role change rejected: user {} already has role {}", targetUserId, newRole);
+            return false;
+        }
+
+        if (newRole == UserRole.ADMIN) {
+            if (targetUser.getRole() != UserRole.USER) {
+                log.warn("Role change rejected: only USER accounts can be promoted");
+                return false;
+            }
+        } else if (newRole == UserRole.USER) {
+            if (targetUser.getRole() != UserRole.ADMIN) {
+                log.warn("Role change rejected: only ADMIN accounts can be demoted to USER");
+                return false;
+            }
+            if (actingAdminRole != UserRole.MASTER_ADMIN) {
+                log.warn("Role change rejected: only master admin can demote admins");
+                return false;
+            }
+        } else {
+            log.warn("Role change rejected: unsupported target role {}", newRole);
+            return false;
+        }
+
+        UserRole previousRole = targetUser.getRole();
+        targetUser.setRole(newRole);
+        userRepository.save(targetUser);
+        log.info("Admin {} changed role of user {} from {} to {}",
+                actingAdminId, targetUserId, previousRole, newRole);
+        notifyRoleChange(targetUserId, newRole);
+        return true;
+    }
+
     public boolean isUnknownUsername(String username) {
         if (!StringUtils.hasText(username)) {
             return true;
@@ -134,8 +208,16 @@ public class UserService {
         Sort sort = pageable.getSort().isSorted() ? pageable.getSort() : Sort.by("username").ascending();
         PageRequest pageRequest = PageRequest.of(pageNumber, USERS_PAGE_SIZE, sort);
 
-        return userRepository.findAll(pageRequest)
+        return userRepository.findByUsernameNot(SystemUserService.SYSTEM_USERNAME, pageRequest)
                 .map(user -> UserMapper.toAdminUserDto(user, bookRepository.countByOwner_Id(user.getId())));
+    }
+
+    private void notifyRoleChange(UUID targetUserId, UserRole newRole) {
+        try {
+            messageAppService.sendRoleChangeNotification(targetUserId, newRole);
+        } catch (MessageServiceUnavailableException ex) {
+            log.error("Role changed for user {} but notification could not be sent", targetUserId);
+        }
     }
 
     private String trimToNull(String value) {

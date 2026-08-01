@@ -16,10 +16,27 @@
 }
 
 .message-row-actions {
-    display: flex;
-    flex-direction: column;
+    display: inline-flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
     align-items: center;
-    gap: clamp(4px, 0.8cqh, 6px);
+    justify-content: center;
+    gap: clamp(4px, 0.8cqw, 8px);
+}
+
+.message-row-actions form {
+    margin: 0;
+    display: inline-flex;
+    flex: 0 0 auto;
+}
+
+.message-list-table--inbox tbody td {
+    vertical-align: middle;
+}
+
+.message-list-table--inbox td.book-list-actions {
+    white-space: nowrap;
+    text-align: center;
 }
 
 .book-open-btn {

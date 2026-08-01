@@ -53,4 +53,15 @@ class AuthenticationGuardTest {
 
         assertThatCode(() -> guard.requireAdmin(session)).doesNotThrowAnyException();
     }
+
+    @Test
+    void requireAdmin_passesForMasterAdmin() {
+        UserSession session = UserSession.builder()
+                .username("owner")
+                .role(UserRole.MASTER_ADMIN)
+                .region(Region.SOFIA)
+                .build();
+
+        assertThatCode(() -> guard.requireAdmin(session)).doesNotThrowAnyException();
+    }
 }

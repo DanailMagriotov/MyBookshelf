@@ -11,7 +11,6 @@
     --title-spacer-height: calc(var(--title-size) * 1.15 + clamp(10px, 2cqh, 16px));
     --hub-form-half-height: clamp(115px, 24cqh, 175px);
     --actions-top-space: clamp(20px, 4.5cqh, 42px);
-    --back-link-offset: 10cqh;
 
     position: absolute;
     top: 50%;
@@ -81,7 +80,7 @@
 }
 
 .form-container--messages-hub .auth-link {
-    margin-top: calc(clamp(12px, 2.5cqh, 20px) + var(--back-link-offset));
+    margin-top: clamp(8px, 1.5cqh, 12px);
     font-size: clamp(13px, min(1.3vw, 2.2cqh), 15px);
     text-align: center;
     flex-shrink: 0;

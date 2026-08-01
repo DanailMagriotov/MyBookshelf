@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static app.testsupport.WebTestSupport.adminSession;
+import static app.testsupport.WebTestSupport.masterAdminSession;
 import static app.testsupport.WebTestSupport.sessionWith;
 import static app.testsupport.WebTestSupport.standaloneWithPageable;
 import static app.testsupport.WebTestSupport.userSession;
@@ -167,6 +168,17 @@ class ProfileAndUsersControllersApiTest {
     }
 
     @Test
+    void deleteAccount_forMasterAdmin_redirectsToHome() throws Exception {
+        var session = userSession(userId, UserRole.MASTER_ADMIN);
+
+        when(userSessionService.get(any())).thenReturn(Optional.of(session));
+
+        profileMockMvc.perform(post("/my-profile/delete").session(sessionWith(session)))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/home"));
+    }
+
+    @Test
     void usersPage_returnsUsersView() throws Exception {
         var session = adminSession();
         var adminDto = AdminUserDto.builder().id(UUID.randomUUID()).username("bob").build();
@@ -210,5 +222,42 @@ class ProfileAndUsersControllersApiTest {
                 .andExpect(flash().attribute("errorMessage", "This account cannot be deleted."));
 
         verify(userService).deleteUserByAdmin(targetUserId);
+    }
+
+    @Test
+    void changeUserRole_whenAllowed_redirectsWithSuccessMessage() throws Exception {
+        var session = adminSession();
+        var targetUserId = UUID.randomUUID();
+
+        when(userSessionService.get(any())).thenReturn(Optional.of(session));
+        when(userService.changeUserRoleByAdmin(
+                targetUserId, UserRole.ADMIN, session.getId(), session.getRole())).thenReturn(true);
+
+        usersMockMvc.perform(post("/users/role/{userId}", targetUserId)
+                        .session(sessionWith(session))
+                        .param("role", "ADMIN")
+                        .param("page", "0"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/users?page=0&size=6&sort=username%2Casc"))
+                .andExpect(flash().attribute("successMessage", "User role updated successfully."));
+    }
+
+    @Test
+    void changeUserRole_whenNotAllowed_redirectsWithErrorMessage() throws Exception {
+        var session = masterAdminSession();
+        var targetUserId = UUID.randomUUID();
+
+        when(userSessionService.get(any())).thenReturn(Optional.of(session));
+        when(userService.changeUserRoleByAdmin(
+                targetUserId, UserRole.USER, session.getId(), session.getRole())).thenReturn(false);
+
+        usersMockMvc.perform(post("/users/role/{userId}", targetUserId)
+                        .session(sessionWith(session))
+                        .param("role", "USER"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(flash().attribute("errorMessage", "This role change is not allowed."));
+
+        verify(userService).changeUserRoleByAdmin(
+                targetUserId, UserRole.USER, session.getId(), session.getRole());
     }
 }

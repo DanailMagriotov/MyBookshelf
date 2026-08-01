@@ -61,7 +61,7 @@ public class MyProfileController {
         }
 
         model.addAttribute("username", userSession.getUsername());
-        model.addAttribute("isAdmin", userSession.getRole() == UserRole.ADMIN);
+        model.addAttribute("isAdmin", userSession.getRole().isAdmin());
         return "my-profile";
     }
 
@@ -73,7 +73,7 @@ public class MyProfileController {
                                   RedirectAttributes redirectAttributes) {
         UserSession userSession = requireUserSession(session);
         model.addAttribute("username", userSession.getUsername());
-        model.addAttribute("isAdmin", userSession.getRole() == UserRole.ADMIN);
+        model.addAttribute("isAdmin", userSession.getRole().isAdmin());
 
         validatePasswordFields(userSession.getId(), request, bindingResult);
 
@@ -98,7 +98,7 @@ public class MyProfileController {
                                 HttpServletResponse response) {
         UserSession userSession = requireUserSession(session);
 
-        if (userSession.getRole() == UserRole.ADMIN) {
+        if (userSession.getRole().isAdmin()) {
             throw new AccessDeniedException();
         }
 

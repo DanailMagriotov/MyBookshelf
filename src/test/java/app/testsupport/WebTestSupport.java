@@ -35,6 +35,10 @@ public final class WebTestSupport {
         return userSession(UserRole.ADMIN);
     }
 
+    public static UserSession masterAdminSession() {
+        return userSession(UserRole.MASTER_ADMIN);
+    }
+
     public static UserSession userSession(UserRole role) {
         return userSession(UUID.randomUUID(), role);
     }

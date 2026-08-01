@@ -2,6 +2,7 @@ package app.web;
 
 import app.model.dto.user.AdminUserDto;
 import app.model.dto.user.UserSession;
+import app.model.entity.user.UserRole;
 import app.security.AuthenticationGuard;
 import app.service.user.UserService;
 import app.service.user.UserSessionService;
@@ -40,7 +41,7 @@ public class UsersController {
     public String users(@PageableDefault(size = UserService.USERS_PAGE_SIZE, sort = "username") Pageable pageable,
                         HttpSession session,
                         Model model) {
-        requireAdmin(session);
+        UserSession userSession = requireAdminSession(session);
 
         Page<AdminUserDto> userPage = userService.getUsers(pageable);
 
@@ -51,6 +52,7 @@ public class UsersController {
         model.addAttribute("totalUsers", userPage.getTotalElements());
         model.addAttribute("hasPrevious", userPage.hasPrevious());
         model.addAttribute("hasNext", userPage.hasNext());
+        model.addAttribute("isMasterAdmin", userSession.getRole() == UserRole.MASTER_ADMIN);
 
         return "users";
     }
@@ -60,7 +62,7 @@ public class UsersController {
                              @RequestParam(defaultValue = "0") int page,
                              HttpSession session,
                              RedirectAttributes redirectAttributes) {
-        requireAdmin(session);
+        requireAdminSession(session);
 
         if (userService.deleteUserByAdmin(userId)) {
             redirectAttributes.addFlashAttribute("successMessage", "User account deleted successfully.");
@@ -68,14 +70,36 @@ public class UsersController {
             redirectAttributes.addFlashAttribute("errorMessage", "This account cannot be deleted.");
         }
 
+        return redirectToUsers(page, redirectAttributes);
+    }
+
+    @PostMapping("/role/{userId}")
+    public String changeUserRole(@PathVariable UUID userId,
+                                 @RequestParam UserRole role,
+                                 @RequestParam(defaultValue = "0") int page,
+                                 HttpSession session,
+                                 RedirectAttributes redirectAttributes) {
+        UserSession userSession = requireAdminSession(session);
+
+        if (userService.changeUserRoleByAdmin(userId, role, userSession.getId(), userSession.getRole())) {
+            redirectAttributes.addFlashAttribute("successMessage", "User role updated successfully.");
+        } else {
+            redirectAttributes.addFlashAttribute("errorMessage", "This role change is not allowed.");
+        }
+
+        return redirectToUsers(page, redirectAttributes);
+    }
+
+    private UserSession requireAdminSession(HttpSession session) {
+        UserSession userSession = userSessionService.get(session).orElse(null);
+        authenticationGuard.requireAdmin(userSession);
+        return userSession;
+    }
+
+    private String redirectToUsers(int page, RedirectAttributes redirectAttributes) {
         redirectAttributes.addAttribute("page", page);
         redirectAttributes.addAttribute("size", UserService.USERS_PAGE_SIZE);
         redirectAttributes.addAttribute("sort", "username,asc");
         return "redirect:/users";
-    }
-
-    private void requireAdmin(HttpSession session) {
-        UserSession userSession = userSessionService.get(session).orElse(null);
-        authenticationGuard.requireAdmin(userSession);
     }
 }

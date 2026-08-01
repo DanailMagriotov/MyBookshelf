@@ -15,12 +15,17 @@
 
 .user-list-table th:nth-child(4),
 .user-list-table td:nth-child(4) {
-    width: 24%;
+    width: 20%;
 }
 
 .user-list-table th:nth-child(5),
 .user-list-table td:nth-child(5) {
-    width: 10%;
+    width: 14%;
+    white-space: nowrap;
+}
+
+.user-list-table tbody td {
+    vertical-align: middle;
 }
 
 .user-list-table th:nth-child(6),
@@ -36,12 +41,49 @@
 
 .user-list-table th:nth-child(8),
 .user-list-table td:nth-child(8) {
-    width: 9%;
+    width: 22%;
+}
+
+.user-list-table td.user-list-actions {
+    white-space: nowrap;
+    text-align: center;
+}
+
+.user-list-actions-inner {
+    display: inline-flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(4px, 0.8cqw, 8px);
+}
+
+.user-list-actions-inner form {
+    margin: 0;
+    display: inline-flex;
+    flex: 0 0 auto;
+}
+
+.book-open-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    border: 1px solid rgba(59, 33, 15, 0.35);
+    background: rgba(255, 255, 255, 0.55);
+    color: #3b210f;
+    text-decoration: none;
+    line-height: normal;
+}
+
+.book-open-btn:hover {
+    background: rgba(255, 255, 255, 0.85);
+    border-color: #3b210f;
 }
 
 @media (max-width: 640px) {
     .user-list-table {
-        min-width: 860px;
+        min-width: 920px;
     }
 }
 

@@ -51,7 +51,8 @@
                         <td th:text="${user.role}">Role</td>
                         <td th:text="${user.region != null ? user.region : '-'}">City</td>
                         <td th:text="${user.bookCount}">0</td>
-                        <td class="book-list-actions">
+                        <td class="book-list-actions user-list-actions">
+                            <div class="user-list-actions-inner">
                             <form th:if="${user.role.name() == 'USER'}"
                                   class="user-delete-form"
                                   th:action="@{/users/delete/{userId}(userId=${user.id}, page=${page})}"
@@ -61,6 +62,29 @@
                                         class="book-delete-btn"
                                         data-delete-user-btn>Delete</button>
                             </form>
+                            <form th:if="${user.role.name() == 'USER'}"
+                                  class="user-role-form"
+                                  th:action="@{/users/role/{userId}(userId=${user.id}, page=${page})}"
+                                  method="post">
+                                <input type="hidden" name="role" value="ADMIN">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                <button type="button"
+                                        class="book-delete-btn book-open-btn"
+                                        data-role-change-btn
+                                        data-role-action="promote">Make admin</button>
+                            </form>
+                            <form th:if="${user.role.name() == 'ADMIN' and isMasterAdmin}"
+                                  class="user-role-form"
+                                  th:action="@{/users/role/{userId}(userId=${user.id}, page=${page})}"
+                                  method="post">
+                                <input type="hidden" name="role" value="USER">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                <button type="button"
+                                        class="book-delete-btn"
+                                        data-role-change-btn
+                                        data-role-action="demote">Make user</button>
+                            </form>
+                            </div>
                         </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(users)}">
@@ -83,6 +107,17 @@
             <p class="book-list-back">
                 <a class="book-list-link" th:href="@{/home}">Back</a>
             </p>
+        </div>
+    </div>
+</div>
+
+<div id="roleChangeDialog" class="delete-dialog" hidden>
+    <div class="delete-dialog__backdrop" data-role-dialog-dismiss></div>
+    <div class="delete-dialog__panel" role="dialog" aria-modal="true" aria-labelledby="roleChangeDialogTitle">
+        <p id="roleChangeDialogTitle" class="delete-dialog__message"></p>
+        <div class="delete-dialog__actions">
+            <button type="button" class="delete-dialog__btn delete-dialog__btn--confirm" id="roleChangeConfirmBtn">Yes</button>
+            <button type="button" class="delete-dialog__btn delete-dialog__btn--cancel" id="roleChangeCancelBtn">No</button>
         </div>
     </div>
 </div>

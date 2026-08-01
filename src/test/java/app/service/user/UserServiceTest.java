@@ -12,6 +12,7 @@ import app.model.entity.user.UserRole;
 import app.repository.book.BookRepository;
 import app.repository.booktransfer.BookTransferRepository;
 import app.repository.user.UserRepository;
+import app.service.message.MessageAppService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -30,6 +31,8 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -49,11 +52,14 @@ class UserServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @Mock
+    private MessageAppService messageAppService;
+
     @InjectMocks
     private UserService userService;
 
     @Test
-    void register_firstUserBecomesAdmin() {
+    void register_firstUserBecomesMasterAdmin() {
         UserRegRequest request = UserRegRequest.builder()
                 .username("alice")
                 .email("alice@example.com")
@@ -70,7 +76,7 @@ class UserServiceTest {
 
         ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(captor.capture());
-        assertThat(captor.getValue().getRole()).isEqualTo(UserRole.ADMIN);
+        assertThat(captor.getValue().getRole()).isEqualTo(UserRole.MASTER_ADMIN);
         assertThat(captor.getValue().getPassword()).isEqualTo("encoded");
     }
 
@@ -190,6 +196,117 @@ class UserServiceTest {
     }
 
     @Test
+    void deleteUserByAdmin_returnsFalseForMasterAdmin() {
+        UUID userId = UUID.randomUUID();
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user(userId, UserRole.MASTER_ADMIN)));
+
+        assertThat(userService.deleteUserByAdmin(userId)).isFalse();
+        verify(userRepository, never()).deleteById(userId);
+    }
+
+    @Test
+    void changeUserRoleByAdmin_promotesUserToAdmin() {
+        UUID adminId = UUID.randomUUID();
+        UUID targetId = UUID.randomUUID();
+        User target = user(targetId, UserRole.USER);
+
+        when(userRepository.findById(targetId)).thenReturn(Optional.of(target));
+
+        assertThat(userService.changeUserRoleByAdmin(
+                targetId, UserRole.ADMIN, adminId, UserRole.ADMIN)).isTrue();
+
+        assertThat(target.getRole()).isEqualTo(UserRole.ADMIN);
+        verify(userRepository).save(target);
+        verify(messageAppService).sendRoleChangeNotification(targetId, UserRole.ADMIN);
+    }
+
+    @Test
+    void changeUserRoleByAdmin_demotesAdminWhenActorIsMasterAdmin() {
+        UUID masterAdminId = UUID.randomUUID();
+        UUID targetId = UUID.randomUUID();
+        User target = user(targetId, UserRole.ADMIN);
+
+        when(userRepository.findById(targetId)).thenReturn(Optional.of(target));
+
+        assertThat(userService.changeUserRoleByAdmin(
+                targetId, UserRole.USER, masterAdminId, UserRole.MASTER_ADMIN)).isTrue();
+
+        assertThat(target.getRole()).isEqualTo(UserRole.USER);
+        verify(messageAppService).sendRoleChangeNotification(targetId, UserRole.USER);
+    }
+
+    @Test
+    void changeUserRoleByAdmin_rejectsDemoteByRegularAdmin() {
+        UUID adminId = UUID.randomUUID();
+        UUID targetId = UUID.randomUUID();
+        User target = user(targetId, UserRole.ADMIN);
+
+        when(userRepository.findById(targetId)).thenReturn(Optional.of(target));
+
+        assertThat(userService.changeUserRoleByAdmin(
+                targetId, UserRole.USER, adminId, UserRole.ADMIN)).isFalse();
+
+        assertThat(target.getRole()).isEqualTo(UserRole.ADMIN);
+        verify(userRepository, never()).save(target);
+        verify(messageAppService, never()).sendRoleChangeNotification(any(), any());
+    }
+
+    @Test
+    void changeUserRoleByAdmin_rejectsMasterAdminTarget() {
+        UUID masterAdminId = UUID.randomUUID();
+        UUID targetId = UUID.randomUUID();
+        User target = user(targetId, UserRole.MASTER_ADMIN);
+
+        when(userRepository.findById(targetId)).thenReturn(Optional.of(target));
+
+        assertThat(userService.changeUserRoleByAdmin(
+                targetId, UserRole.USER, masterAdminId, UserRole.MASTER_ADMIN)).isFalse();
+
+        verify(userRepository, never()).save(target);
+    }
+
+    @Test
+    void changeUserRoleByAdmin_rejectsSelfChange() {
+        UUID adminId = UUID.randomUUID();
+
+        assertThat(userService.changeUserRoleByAdmin(
+                adminId, UserRole.USER, adminId, UserRole.ADMIN)).isFalse();
+
+        verify(userRepository, never()).findById(adminId);
+    }
+
+    @Test
+    void changeUserRoleByAdmin_rejectsSystemUser() {
+        UUID masterAdminId = UUID.randomUUID();
+        UUID systemUserId = UUID.randomUUID();
+        User systemUser = user(systemUserId, UserRole.ADMIN);
+        systemUser.setUsername(SystemUserService.SYSTEM_USERNAME);
+
+        when(userRepository.findById(systemUserId)).thenReturn(Optional.of(systemUser));
+
+        assertThat(userService.changeUserRoleByAdmin(
+                systemUserId, UserRole.USER, masterAdminId, UserRole.MASTER_ADMIN)).isFalse();
+
+        verify(userRepository, never()).save(systemUser);
+    }
+
+    @Test
+    void changeUserRoleByAdmin_keepsRoleWhenNotificationFails() {
+        UUID adminId = UUID.randomUUID();
+        UUID targetId = UUID.randomUUID();
+        User target = user(targetId, UserRole.USER);
+
+        when(userRepository.findById(targetId)).thenReturn(Optional.of(target));
+        doThrow(app.exception.MessageServiceUnavailableException.class)
+                .when(messageAppService).sendRoleChangeNotification(targetId, UserRole.ADMIN);
+
+        assertThat(userService.changeUserRoleByAdmin(
+                targetId, UserRole.ADMIN, adminId, UserRole.ADMIN)).isTrue();
+
+        assertThat(target.getRole()).isEqualTo(UserRole.ADMIN);
+    }
+
+    @Test
     void isUnknownUsername_returnsTrueForBlankOrMissingUser() {
         assertThat(userService.isUnknownUsername("")).isTrue();
         when(userRepository.existsByUsername("alice")).thenReturn(false);
@@ -264,7 +381,8 @@ class UserServiceTest {
         User user = user(userId, UserRole.USER);
         Page<User> page = new PageImpl<>(List.of(user));
 
-        when(userRepository.findAll(any(PageRequest.class))).thenReturn(page);
+        when(userRepository.findByUsernameNot(eq(SystemUserService.SYSTEM_USERNAME), any(PageRequest.class)))
+                .thenReturn(page);
         when(bookRepository.countByOwner_Id(userId)).thenReturn(4L);
 
         Page<?> result = userService.getUsers(PageRequest.of(0, 6));
