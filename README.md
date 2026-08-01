@@ -1,8 +1,21 @@
 # My Bookshelf
 
-Web application for managing a personal book collection and sharing books between registered users. Owners can add books to their shelf, lend them to other users with a return deadline, and track transfers. Receivers can return borrowed books; administrators can view all registered users.
+Web application for managing a personal book collection, sharing books between registered users, and exchanging messages. Owners can add books to their shelf, lend them with a return deadline, and track transfers. Administrators can manage registered users and roles.
 
 **Repository:** [https://github.com/DanailMagriotov/MyBookshelf.git](https://github.com/DanailMagriotov/MyBookshelf.git)
+
+---
+
+## Architecture
+
+The project consists of two Spring Boot applications:
+
+| Application | Port | Database | Responsibility |
+|-------------|------|----------|----------------|
+| **my_bookshelf** (main app) | 8080 | `my_bookshelf_app` | Web UI, users, books, transfers, security |
+| **message-service** | 8081 | `my_bookshelf_messages` | REST API for user messages |
+
+The main app communicates with the message microservice through a **Feign client** (`MessageServiceClient`). Each service has its own MySQL database. Schema is managed with Hibernate `ddl-auto=update` (no Flyway/Liquibase migration scripts).
 
 ---
 
@@ -11,11 +24,14 @@ Web application for managing a personal book collection and sharing books betwee
 - **Language:** Java 17
 - **Framework:** Spring Boot 4.0.6
 - **Build tool:** Maven
-- **Database:** MySQL
+- **Database:** MySQL 8+
 - **Data access:** Spring Data JPA / Hibernate
-- **Security:** Spring Security (custom login flow, AuthenticationManager, bcrypt password hashing, session authentication)
+- **Security:** Spring Security (custom login, bcrypt, HTTP session with `UserSession`)
+- **Inter-service communication:** Spring Cloud OpenFeign
 - **Validation:** Jakarta Bean Validation
+- **Caching & scheduling:** Spring Cache, `@Scheduled` jobs
 - **Frontend:** Spring MVC + Thymeleaf, CSS, JavaScript
+- **Testing:** JUnit 5, Mockito, MockMvc, H2 (test profile), JaCoCo (70% line coverage gate)
 - **Dev tools:** Spring Boot DevTools, Lombok
 
 ---
@@ -24,78 +40,81 @@ Web application for managing a personal book collection and sharing books betwee
 
 ### Authentication & access control
 
-- User registration with server-side validation
-- Session-based login with LoginRequest DTO and server-side field validation (POST /login/submit)
-- Invalid credentials and empty fields are redisplayed with red error messages next to the relevant inputs
-- User session stored in HTTP session after successful authentication (UserSession with user id)
-- Role-based access: USER and ADMIN
-- Guests can access the landing, login, and register pages only
-- Authenticated users can access all other application endpoints
-- Admin-only access to the users management screen (/users)
+- User registration and login with server-side validation
+- Session-based authentication (`UserSession` stored in HTTP session)
+- Roles: **USER**, **ADMIN**, **MASTER_ADMIN**
+- The **first registered user** receives **MASTER_ADMIN**; all later registrations receive **USER**
+- Guests: landing, login, register only
+- Authenticated users: bookshelf, transfers, profile, messaging
+- Admin screens (`/users`): visible to **ADMIN** and **MASTER_ADMIN**
 
 ### Book management
 
-- Paginated bookshelf view (6 books per page)
-- Add new books (title, author, description, category, price)
-- Delete owned books (only when not in an active transfer)
-- Counter showing how many books are visible on the user's shelf
+- Paginated bookshelf (6 books per page)
+- Add, delete owned books (delete blocked while a transfer is active)
+- Visible book counter on home and bookshelf
 
 ### Book transfers
 
-- Send a book to another user by username with a return deadline
-- Edit return deadline for books currently lent out (new date cannot be earlier than the current deadline)
-- Return a borrowed book (transfer is removed; ownership is restored to the sender)
-- Validation for self-transfer, invalid recipient, and unavailable books
+- Send a book by recipient username with return deadline
+- Edit return deadline (not earlier than current deadline)
+- Return borrowed books
+- Validation: self-transfer, unknown recipient, unavailable book
+- **Scheduled overdue reminders** (system messages to sender and receiver)
+
+### Messaging
+
+- Send messages to other users by username
+- Inbox (6 messages per page), sent list (8 per page), unread counter
+- Mark as read, soft delete (hidden from inbox/sent; permanently removed when both sides delete)
+- **System messages** from a dedicated system account (overdue return reminders, role change notifications)
+- Graceful degradation when message-service is unavailable
 
 ### User profile
 
-- View and update profile (first name, last name, email, city, optional password change)
-- Password change requires confirmation and must differ from the current password
-- Delete account (disabled for ADMIN accounts with an explanatory tooltip)
+- View and update profile (name, email, city, optional password change)
+- Delete account (disabled for admin roles with tooltip)
 
-### Administration
+### Administration (`/users`)
 
-- Admin users list with pagination (username, first name, last name, email, role, city, owned book count)
-- Accessible from the users button on the home screen (visible only for ADMIN)
+- Paginated user list (system account is **hidden** from the list)
+- **Delete** — only **USER** accounts
+- **Make admin** — promote **USER** → **ADMIN** (any admin)
+- **Make user** — demote **ADMIN** → **USER** (**MASTER_ADMIN** only)
+- **MASTER_ADMIN** and system account cannot be deleted or have roles changed
+- Confirmation dialogs for delete and role changes
+- Inbox notification sent on successful role change
 
-### UI / UX
+### Cross-cutting
 
-- Responsive layouts with themed background images per screen
-- Flash messages for successful actions
-- Server-side validation on all forms (login, register, add book, send book, edit transfer, my profile) with red field-level error messages
-- Optional client-side validation for faster feedback
-- Confirmation dialog before account deletion
+- Custom error page (`error.html`) and `@ControllerAdvice` exception handling
+- Structured logging in service layer (books, transfers, users, messages)
+- In-memory caching for bookshelf counts, sendable books, unread message counts
 
 ---
 
-## Functionalities
+## Domain model
 
-The following domain functionalities are triggered from the frontend, invoke backend POST/DELETE endpoints, and show a visible result to the user.
+### Main application (`my_bookshelf_app`)
 
-- **Add book** — Entity: Book, Operation: Create, Endpoint: POST /add-book
-- **Delete book** — Entity: Book, Operation: Delete, Endpoint: POST /my-bookshelf/delete/{bookId}
-- **Send book** — Entity: BookTransfer, Operation: Create, Endpoint: POST /send-book
-- **Return book** — Entity: BookTransfer, Operation: Delete, Endpoint: POST /my-bookshelf/return/{bookId}
-- **Update return deadline** — Entity: BookTransfer, Operation: Update, Endpoint: POST /my-bookshelf/edit/{bookId}
-
-Additional user-related flows (registration, login, profile update, account deletion) are supported but operate on the User entity.
-
-### Domain model
-
-- **User** — account with username, hashed password, email, role, region, and optional name
+- **User** — username, password (bcrypt), email, role, region, optional name
 - **Book** — title, author, description, category, price, owner
-- **BookTransfer** — sender, receiver, book, created/updated timestamps, return deadline
+- **BookTransfer** — sender, receiver, book, timestamps, return deadline, overdue reminder flag
 
-All entities use UUID primary keys. Relationships include User-Book (owner) and BookTransfer links between users and books.
+### Message service (`my_bookshelf_messages`)
+
+- **Message** — senderId, receiverId, subject (`about`), content, sent/read timestamps, soft-delete flags
+
+All entities use UUID primary keys.
 
 ---
 
 ## Integrations
 
-- **MySQL** — Primary relational database for users, books, and transfers. Schema is managed via Hibernate ddl-auto=update.
-- **Spring Security** — Protects routes, provides AuthenticationManager for login, and integrates with custom session storage.
-
-The application is a **single standalone Spring Boot service**. It does not integrate with external REST APIs, message brokers, or additional microservices.
+- **MySQL (main)** — users, books, transfers
+- **MySQL (messages)** — message storage for the microservice
+- **message-service REST API** — consumed by the main app via Feign (`http://localhost:8081`)
+- **Spring Security** — route protection and login flow
 
 ---
 
@@ -109,41 +128,80 @@ The application is a **single standalone Spring Boot service**. It does not inte
 
 ### Configuration
 
-Set database credentials in `src/main/resources/application.properties`:
+Set database credentials as environment variables (used by both applications):
 
-```properties
-spring.datasource.url=jdbc:mysql://localhost:3306/my_bookshelf_app?createDatabaseIfNotExist=true
-spring.datasource.username=YOUR_USERNAME
-spring.datasource.password=YOUR_PASSWORD
+```bash
+# Windows (PowerShell)
+$env:MY_USERNAME="your_mysql_user"
+$env:MY_PASSWORD="your_mysql_password"
+
+# Linux / macOS
+export MY_USERNAME=your_mysql_user
+export MY_PASSWORD=your_mysql_password
 ```
+
+Default JDBC URLs (can be changed in `application.properties`):
+
+- Main app: `jdbc:mysql://localhost:3306/my_bookshelf_app?createDatabaseIfNotExist=true`
+- Message service: `jdbc:mysql://localhost:3306/my_bookshelf_messages?createDatabaseIfNotExist=true`
+
+Main app Feign target (default): `message-service.url=http://localhost:8081`
+
+Scheduling can be disabled in tests via `app.scheduling.enabled=false` (test profile).
 
 ### Run
 
+Start **message-service first**, then the main application:
+
 ```bash
+# Terminal 1 — message microservice (port 8081)
+cd message-service
+mvn spring-boot:run
+```
+
+```bash
+# Terminal 2 — main application (port 8080)
+cd ..
 mvn spring-boot:run
 ```
 
 Open [http://localhost:8080](http://localhost:8080) in a browser.
 
-The first registered user automatically receives the ADMIN role; subsequent registrations receive the USER role.
+Register the first account to obtain **MASTER_ADMIN**. Start message-service before using messaging features.
+
+### Test
+
+From the repository root (runs main app tests):
+
+```bash
+mvn verify
+```
+
+From `message-service/` (runs microservice tests):
+
+```bash
+mvn verify
+```
+
+JaCoCo reports: `target/site/jacoco/index.html` (each module). Minimum **70% line coverage** is enforced on core packages during `verify`.
 
 ---
 
 ## Web Pages
 
-- **/** — Landing page (Guest)
-- **/login** — Sign in (Guest)
-- **/register** — Create account (Guest)
-- **/home** — Main navigation hub (Authenticated)
-- **/my-bookshelf** — Book list with actions (Authenticated)
-- **/add-book** — Add a new book (Authenticated)
-- **/send-book** — Lend a book to another user (Authenticated)
-- **/my-bookshelf/edit/{bookId}** — Edit return deadline (Authenticated, owner)
-- **/my-profile** — Profile settings (Authenticated)
-- **/users** — All users, admin table (Admin)
-
----
-
-## To be implemented
-
-- Messaging system between users
+| Path | Description | Access |
+|------|-------------|--------|
+| `/` | Landing page | Guest |
+| `/login`, `/register` | Authentication | Guest |
+| `/home` | Navigation hub | Authenticated |
+| `/my-bookshelf` | Book list and actions | Authenticated |
+| `/add-book` | Add a book | Authenticated |
+| `/send-book` | Lend a book | Authenticated |
+| `/my-bookshelf/edit/{bookId}` | Edit return deadline | Authenticated (owner) |
+| `/my-profile` | Profile settings | Authenticated |
+| `/messages` | Messages hub | Authenticated |
+| `/messages/new` | Compose message | Authenticated |
+| `/messages/inbox` | Inbox | Authenticated |
+| `/messages/inbox/{id}` | View inbox message | Authenticated |
+| `/messages/sent` | Sent messages | Authenticated |
+| `/users` | User administration | Admin |
