@@ -7,6 +7,7 @@ import app.mapper.user.UserMapper;
 import app.model.dto.user.MyProfileUpdateRequest;
 import app.model.dto.user.UserSession;
 import app.model.entity.user.Region;
+import app.model.entity.user.UserRole;
 import app.repository.user.UserRepository;
 import app.service.user.UserService;
 import app.service.user.UserSessionService;
@@ -60,7 +61,7 @@ public class MyProfileController {
         }
 
         model.addAttribute("username", userSession.getUsername());
-        model.addAttribute("isAdmin", userSession.getRole().isAdmin());
+        model.addAttribute("deleteAccountDisabled", userSession.getRole() == UserRole.MASTER_ADMIN);
         return "my-profile";
     }
 
@@ -72,7 +73,7 @@ public class MyProfileController {
                                   RedirectAttributes redirectAttributes) {
         UserSession userSession = requireUserSession(session);
         model.addAttribute("username", userSession.getUsername());
-        model.addAttribute("isAdmin", userSession.getRole().isAdmin());
+        model.addAttribute("deleteAccountDisabled", userSession.getRole() == UserRole.MASTER_ADMIN);
 
         validatePasswordFields(userSession.getId(), request, bindingResult);
 
@@ -97,7 +98,7 @@ public class MyProfileController {
                                 HttpServletResponse response) {
         UserSession userSession = requireUserSession(session);
 
-        if (userSession.getRole().isAdmin()) {
+        if (userSession.getRole() == UserRole.MASTER_ADMIN) {
             throw new AccessDeniedException();
         }
 

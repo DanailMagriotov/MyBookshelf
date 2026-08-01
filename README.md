@@ -73,7 +73,7 @@ The main app communicates with the message microservice through a **Feign client
 ### User profile
 
 - View and update profile (name, email, city, optional password change)
-- Delete account (disabled for admin roles with tooltip)
+- Delete account (disabled for **MASTER_ADMIN** with tooltip)
 
 ### Administration (`/users`)
 

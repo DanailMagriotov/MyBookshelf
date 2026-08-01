@@ -157,14 +157,17 @@ class ProfileAndUsersControllersApiTest {
     }
 
     @Test
-    void deleteAccount_forAdmin_redirectsToHome() throws Exception {
+    void deleteAccount_forAdmin_redirectsToIndex() throws Exception {
         var session = userSession(userId, UserRole.ADMIN);
 
         when(userSessionService.get(any())).thenReturn(Optional.of(session));
+        doNothing().when(userService).deleteAccount(userId);
 
         profileMockMvc.perform(post("/my-profile/delete").session(sessionWith(session)))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/home"));
+                .andExpect(redirectedUrl("/"));
+
+        verify(userService).deleteAccount(userId);
     }
 
     @Test
