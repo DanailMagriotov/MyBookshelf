@@ -1,6 +1,6 @@
 # My Bookshelf
 
-Web application for managing a personal book collection, sharing books between registered users, and exchanging messages. Owners can add books to their shelf, lend them with a return deadline, and track transfers. Administrators can manage registered users and roles.
+Web application for managing a personal book collection, sharing books between registered users, and exchanging messages. Owners can add and edit books on their shelf, lend them with a return deadline, and track transfers. Administrators can manage registered users and roles.
 
 **Repository:** [https://github.com/DanailMagriotov/MyBookshelf.git](https://github.com/DanailMagriotov/MyBookshelf.git)
 
@@ -50,14 +50,16 @@ The main app communicates with the message microservice through a **Feign client
 
 ### Book management
 
-- Paginated bookshelf (6 books per page)
-- Add, delete owned books (delete blocked while a transfer is active)
+- Paginated bookshelf (4 books per page)
+- Add owned books with title, author, description, category, and price
+- **Edit book** metadata when the book is at home (`my book`) and has no active transfer
+- Delete owned books (delete blocked while a transfer is active)
 - Visible book counter on home and bookshelf
 
 ### Book transfers
 
 - Send a book by recipient username with return deadline
-- Edit return deadline (not earlier than current deadline)
+- **Edit return deadline** for lent books (not earlier than current deadline)
 - Return borrowed books
 - Validation: self-transfer, unknown recipient, unavailable book
 - **Scheduled overdue reminders** (system messages to sender and receiver)
@@ -194,10 +196,11 @@ JaCoCo reports: `target/site/jacoco/index.html` (each module). Minimum **70% lin
 | `/` | Landing page | Guest |
 | `/login`, `/register` | Authentication | Guest |
 | `/home` | Navigation hub | Authenticated |
-| `/my-bookshelf` | Book list and actions | Authenticated |
+| `/my-bookshelf` | Book list and actions (edit, delete, return, edit deadline) | Authenticated |
 | `/add-book` | Add a book | Authenticated |
+| `/edit-book/{bookId}` | Edit book metadata | Authenticated (owner, no active transfer) |
 | `/send-book` | Lend a book | Authenticated |
-| `/my-bookshelf/edit/{bookId}` | Edit return deadline | Authenticated (owner) |
+| `/my-bookshelf/edit/{bookId}` | Edit return deadline | Authenticated (owner, active transfer) |
 | `/my-profile` | Profile settings | Authenticated |
 | `/messages` | Messages hub | Authenticated |
 | `/messages/new` | Compose message | Authenticated |
