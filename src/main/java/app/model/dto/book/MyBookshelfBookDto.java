@@ -24,4 +24,5 @@ public class MyBookshelfBookDto {
     private boolean deletable;
     private boolean returnable;
     private boolean editable;
+    private boolean bookEditable;
 }

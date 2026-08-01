@@ -1,6 +1,7 @@
 package app.mapper.book;
 
 import app.model.dto.book.AddBookRequest;
+import app.model.dto.book.EditBookRequest;
 import app.model.dto.book.MyBookshelfBookDto;
 import app.model.entity.book.Book;
 import app.model.entity.booktransfer.BookTransfer;
@@ -30,6 +31,32 @@ public class BookMapper {
                 .build();
     }
 
+    public static EditBookRequest toEditBookRequest(Book book) {
+        if (book == null) {
+            return null;
+        }
+
+        return EditBookRequest.builder()
+                .title(book.getTitle())
+                .author(book.getAuthor())
+                .description(book.getDescription())
+                .category(book.getCategory())
+                .price(book.getPrice())
+                .build();
+    }
+
+    public static void applyEditToBook(Book book, EditBookRequest request) {
+        if (book == null || request == null) {
+            return;
+        }
+
+        book.setTitle(request.getTitle().trim());
+        book.setAuthor(request.getAuthor().trim());
+        book.setDescription(trimToNull(request.getDescription()));
+        book.setCategory(request.getCategory());
+        book.setPrice(request.getPrice());
+    }
+
     public static MyBookshelfBookDto toMyBookshelfBookDto(Book book, BookTransfer transfer, UUID viewerId) {
         if (book == null) {
             return null;
@@ -48,6 +75,7 @@ public class BookMapper {
                 .deletable(isDeletable(book, transfer, viewerId))
                 .returnable(isReturnable(transfer, viewerId))
                 .editable(isEditable(book, transfer, viewerId))
+                .bookEditable(isDeletable(book, transfer, viewerId))
                 .build();
     }
 

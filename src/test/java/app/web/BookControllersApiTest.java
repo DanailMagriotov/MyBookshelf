@@ -6,6 +6,7 @@ import app.exception.SelfTransferException;
 import app.model.dto.book.EditTransferRequest;
 import app.model.dto.book.MyBookshelfBookDto;
 import app.model.entity.book.Book;
+import app.model.entity.book.Category;
 import app.service.book.BookService;
 import app.service.booktransfer.BookTransferService;
 import app.service.user.UserService;
@@ -57,6 +58,7 @@ class BookControllersApiTest {
     private UserSessionService userSessionService;
 
     private MockMvc addBookMockMvc;
+    private MockMvc editBookMockMvc;
     private MockMvc myBookshelfMockMvc;
     private MockMvc sendBookMockMvc;
 
@@ -66,6 +68,7 @@ class BookControllersApiTest {
     @BeforeEach
     void setUp() {
         addBookMockMvc = standaloneWithPageable(new AddBookController(bookService, userSessionService)).build();
+        editBookMockMvc = standaloneWithPageable(new EditBookController(bookService, userSessionService)).build();
         myBookshelfMockMvc = standaloneWithPageable(
                 new MyBookshelfController(bookService, bookTransferService, userSessionService)).build();
         sendBookMockMvc = standaloneWithPageable(
@@ -114,6 +117,63 @@ class BookControllersApiTest {
                         .param("author", ""))
                 .andExpect(status().isOk())
                 .andExpect(view().name("add-book"));
+    }
+
+    @Test
+    void editBookPage_returnsPrefilledForm() throws Exception {
+        var session = authenticatedSession();
+        var book = Book.builder()
+                .id(bookId)
+                .title("Dune")
+                .author("Herbert")
+                .category(Category.FANTASY)
+                .build();
+
+        when(userSessionService.get(any())).thenReturn(Optional.of(session));
+        when(bookService.getBookForMetadataEdit(userId, bookId)).thenReturn(book);
+        when(bookService.toEditBookRequest(book)).thenReturn(
+                app.model.dto.book.EditBookRequest.builder()
+                        .title("Dune")
+                        .author("Herbert")
+                        .category(Category.FANTASY)
+                        .build());
+
+        editBookMockMvc.perform(get("/edit-book/{bookId}", bookId)
+                        .session(sessionWith(session))
+                        .param("page", "1"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("edit-book"));
+    }
+
+    @Test
+    void editBookSubmit_withValidData_redirectsToBookshelf() throws Exception {
+        var session = authenticatedSession();
+        when(userSessionService.get(any())).thenReturn(Optional.of(session));
+        doNothing().when(bookService).updateBook(eq(userId), eq(bookId), any());
+
+        editBookMockMvc.perform(post("/edit-book/{bookId}", bookId)
+                        .session(sessionWith(session))
+                        .param("page", "2")
+                        .param("title", "Dune")
+                        .param("author", "Herbert")
+                        .param("category", "FANTASY")
+                        .param("price", "12.50"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/my-bookshelf?page=2"))
+                .andExpect(flash().attribute("successMessage", "Book updated successfully."));
+    }
+
+    @Test
+    void editBookSubmit_withValidationErrors_returnsForm() throws Exception {
+        var session = authenticatedSession();
+        when(userSessionService.get(any())).thenReturn(Optional.of(session));
+
+        editBookMockMvc.perform(post("/edit-book/{bookId}", bookId)
+                        .session(sessionWith(session))
+                        .param("title", "")
+                        .param("author", ""))
+                .andExpect(status().isOk())
+                .andExpect(view().name("edit-book"));
     }
 
     @Test

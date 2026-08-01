@@ -52,21 +52,26 @@
                         <td th:text="${book.recipientUsername}">Recipient</td>
                         <td th:text="${book.returnDeadline != null ? #temporals.format(book.returnDeadline, 'dd MMM yyyy HH:mm') : '-'}">Return deadline</td>
                         <td class="book-list-actions">
-                            <form th:if="${book.deletable}"
-                                  th:action="@{/my-bookshelf/delete/{id}(id=${book.id}, page=${page})}"
-                                  method="post">
-                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-                                <button type="submit" class="book-delete-btn">Delete</button>
-                            </form>
-                            <a th:if="${book.editable}"
-                               class="book-delete-btn book-edit-link"
-                               th:href="@{/my-bookshelf/edit/{id}(id=${book.id}, page=${page})}">Edit</a>
-                            <form th:if="${book.returnable}"
-                                  th:action="@{/my-bookshelf/return/{id}(id=${book.id}, page=${page})}"
-                                  method="post">
-                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-                                <button type="submit" class="book-return-btn">Return</button>
-                            </form>
+                            <div class="book-list-actions-inner">
+                                <a th:if="${book.bookEditable}"
+                                   class="book-delete-btn book-edit-link"
+                                   th:href="@{/edit-book/{id}(id=${book.id}, page=${page})}">Edit book</a>
+                                <form th:if="${book.deletable}"
+                                      th:action="@{/my-bookshelf/delete/{id}(id=${book.id}, page=${page})}"
+                                      method="post">
+                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                    <button type="submit" class="book-delete-btn">Delete</button>
+                                </form>
+                                <a th:if="${book.editable}"
+                                   class="book-delete-btn book-edit-link"
+                                   th:href="@{/my-bookshelf/edit/{id}(id=${book.id}, page=${page})}">Edit deadline</a>
+                                <form th:if="${book.returnable}"
+                                      th:action="@{/my-bookshelf/return/{id}(id=${book.id}, page=${page})}"
+                                      method="post">
+                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                    <button type="submit" class="book-return-btn">Return</button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(books)}">

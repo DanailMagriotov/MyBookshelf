@@ -32,6 +32,6 @@ public class EditBookRequest {
     @NotNull(message = "Please select a category")
     private Category category;
 
-    @DecimalMin(value = "0.0", inclusive = true, message = "Price must be at least 0")
+    @DecimalMin(value = "0.0", message = "Price must be at least 0")
     private BigDecimal price;
 }

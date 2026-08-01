@@ -1,9 +1,9 @@
 .scene {
     /* Light panel bounds on book-list-background.png (1672×941) */
-    --light-left: 17%;
-    --light-right: 17%;
-    --light-top: 11%;
-    --light-bottom: 9%;
+    --light-left: 14%;
+    --light-right: 14%;
+    --light-top: 8%;
+    --light-bottom: 5%;
 
     --title-size: clamp(18px, min(2.6vw, 3.8cqh), 30px);
     --table-font: clamp(11px, min(1.2vw, 2.2cqh), 14px);
@@ -34,15 +34,15 @@
     flex-direction: column;
     align-items: stretch;
 
-    width: min(100%, 1000px);
-    max-width: calc(100% - 16px);
-    max-height: calc(100% - 16px);
-    padding: 0 clamp(8px, 1.5cqw, 16px);
+    width: 100%;
+    max-width: calc(100% - 8px);
+    max-height: 100%;
+    padding: 0 clamp(4px, 1cqw, 10px);
     box-sizing: border-box;
 }
 
 .book-list-title {
-    margin-bottom: clamp(10px, 2cqh, 16px);
+    margin-bottom: clamp(8px, 1.6cqh, 14px);
     color: #3b210f;
     font-size: var(--title-size);
     font-weight: 500;
@@ -56,7 +56,7 @@
 
 .book-list-counter {
     align-self: flex-start;
-    margin: 0 0 clamp(8px, 1.5cqh, 12px);
+    margin: 0 0 clamp(6px, 1.2cqh, 10px);
     color: #3b210f;
     font-size: clamp(12px, min(1.3vw, 2.3cqh), 15px);
     font-family: "Trebuchet MS", sans-serif;
@@ -83,12 +83,8 @@
 
 .book-list-table-wrap {
     width: 100%;
-    overflow-x: auto;
-    overflow-y: auto;
-    flex: 1 1 auto;
-    min-height: 0;
-    max-height: calc(clamp(34px, 4.5cqh, 44px) + (6 * clamp(54px, 7.2cqh, 74px)));
-    -webkit-overflow-scrolling: touch;
+    flex: 0 0 auto;
+    padding-bottom: clamp(4px, 0.8cqh, 10px);
 }
 
 .book-list-table {
@@ -112,7 +108,7 @@
 .book-list-table tbody td {
     padding: clamp(6px, 1.2cqh, 10px) clamp(6px, 1.2cqw, 10px);
     border-bottom: 1px solid rgba(59, 33, 15, 0.12);
-    vertical-align: top;
+    vertical-align: middle;
     word-break: break-word;
     background: rgba(255, 255, 255, 0.2);
 }
@@ -133,7 +129,7 @@
 
 .book-list-table th:nth-child(3),
 .book-list-table td:nth-child(3) {
-    width: 26%;
+    width: 19%;
 }
 
 .book-list-table th:nth-child(4),
@@ -158,12 +154,12 @@
 
 .book-list-table th:nth-child(8),
 .book-list-table td:nth-child(8) {
-    width: 11%;
+    width: 10%;
 }
 
 .book-list-table th:nth-child(9),
 .book-list-table td:nth-child(9) {
-    width: 9%;
+    width: 20%;
 }
 
 .book-list-actions-header {
@@ -173,12 +169,32 @@
 .book-list-actions {
     text-align: center;
     vertical-align: middle;
+    white-space: nowrap;
+    padding-right: clamp(2px, 0.5cqw, 6px);
+}
+
+.book-list-actions-inner {
+    display: inline-flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(4px, 0.8cqw, 8px);
+}
+
+.book-list-actions-inner form {
+    margin: 0;
+    display: inline-flex;
+    flex: 0 0 auto;
 }
 
 .book-list-actions .book-edit-link {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     text-decoration: none;
     line-height: normal;
+    box-sizing: border-box;
 }
 
 .book-delete-btn {
@@ -269,8 +285,8 @@
 
 @media (max-width: 900px) {
     .scene {
-        --light-left: 18%;
-        --light-right: 18%;
+        --light-left: 15%;
+        --light-right: 15%;
     }
 }
 
@@ -278,8 +294,8 @@
     .scene {
         --light-left: 14%;
         --light-right: 14%;
-        --light-top: 10%;
-        --light-bottom: 8%;
+        --light-top: 8%;
+        --light-bottom: 5%;
     }
 
     .book-list-table {
@@ -297,8 +313,8 @@
 
 @media (max-height: 580px) {
     .scene {
-        --light-top: 9%;
-        --light-bottom: 7%;
+        --light-top: 7%;
+        --light-bottom: 4%;
     }
 }
 

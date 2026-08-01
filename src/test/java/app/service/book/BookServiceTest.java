@@ -4,6 +4,7 @@ import app.exception.AccessDeniedException;
 import app.exception.NotAuthenticatedException;
 import app.mapper.book.BookMapper;
 import app.model.dto.book.AddBookRequest;
+import app.model.dto.book.EditBookRequest;
 import app.model.entity.book.Book;
 import app.model.entity.book.Category;
 import app.model.entity.booktransfer.BookTransfer;
@@ -126,6 +127,60 @@ class BookServiceTest {
     }
 
     @Test
+    void updateBook_updatesOwnedBookWithoutTransfer() {
+        UUID ownerId = UUID.randomUUID();
+        UUID bookId = UUID.randomUUID();
+        Book book = book(bookId, ownerId, BookMapper.DEFAULT_OWNER_LABEL);
+        EditBookRequest request = EditBookRequest.builder()
+                .title(" New Title ")
+                .author(" New Author ")
+                .category(Category.SCIENCE)
+                .price(BigDecimal.valueOf(5))
+                .build();
+
+        when(bookRepository.findByIdAndOwner_Id(bookId, ownerId)).thenReturn(Optional.of(book));
+        when(bookTransferRepository.findByBook_Id(bookId)).thenReturn(Optional.empty());
+
+        bookService.updateBook(ownerId, bookId, request);
+
+        ArgumentCaptor<Book> captor = ArgumentCaptor.forClass(Book.class);
+        verify(bookRepository).save(captor.capture());
+        assertThat(captor.getValue().getTitle()).isEqualTo("New Title");
+        assertThat(captor.getValue().getAuthor()).isEqualTo("New Author");
+        assertThat(captor.getValue().getCategory()).isEqualTo(Category.SCIENCE);
+    }
+
+    @Test
+    void updateBook_throwsWhenBookIsTransferred() {
+        UUID ownerId = UUID.randomUUID();
+        UUID bookId = UUID.randomUUID();
+        Book book = book(bookId, ownerId, BookMapper.DEFAULT_OWNER_LABEL);
+
+        when(bookRepository.findByIdAndOwner_Id(bookId, ownerId)).thenReturn(Optional.of(book));
+        when(bookTransferRepository.findByBook_Id(bookId)).thenReturn(Optional.of(new BookTransfer()));
+
+        assertThatThrownBy(() -> bookService.updateBook(ownerId, bookId, EditBookRequest.builder()
+                .title("Title")
+                .author("Author")
+                .category(Category.OTHER)
+                .build()))
+                .isInstanceOf(AccessDeniedException.class);
+        verify(bookRepository, never()).save(any());
+    }
+
+    @Test
+    void getBookForMetadataEdit_throwsWhenOwnerLabelIsNotDefault() {
+        UUID ownerId = UUID.randomUUID();
+        UUID bookId = UUID.randomUUID();
+        Book book = book(bookId, ownerId, "borrowed");
+
+        when(bookRepository.findByIdAndOwner_Id(bookId, ownerId)).thenReturn(Optional.of(book));
+
+        assertThatThrownBy(() -> bookService.getBookForMetadataEdit(ownerId, bookId))
+                .isInstanceOf(AccessDeniedException.class);
+    }
+
+    @Test
     void getBooksByOwner_returnsMappedPage() {
         UUID ownerId = UUID.randomUUID();
         Book book = book(UUID.randomUUID(), ownerId, BookMapper.DEFAULT_OWNER_LABEL);
@@ -134,7 +189,7 @@ class BookServiceTest {
         when(bookRepository.findVisibleBooksForUser(eq(ownerId), any(PageRequest.class))).thenReturn(page);
         when(bookTransferRepository.findByBook_Id(book.getId())).thenReturn(Optional.empty());
 
-        Page<?> result = bookService.getBooksByOwner(ownerId, PageRequest.of(0, 6));
+        Page<?> result = bookService.getBooksByOwner(ownerId, PageRequest.of(0, BookService.BOOKS_PAGE_SIZE));
 
         assertThat(result.getTotalElements()).isOne();
         assertThat(result.getContent().get(0)).isNotNull();

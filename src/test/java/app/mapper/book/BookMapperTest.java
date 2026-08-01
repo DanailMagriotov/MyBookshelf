@@ -1,6 +1,7 @@
 package app.mapper.book;
 
 import app.model.dto.book.AddBookRequest;
+import app.model.dto.book.EditBookRequest;
 import app.model.dto.book.MyBookshelfBookDto;
 import app.model.entity.book.Book;
 import app.model.entity.book.Category;
@@ -78,6 +79,7 @@ class BookMapperTest {
         MyBookshelfBookDto dto = BookMapper.toMyBookshelfBookDto(book, null, ownerId);
 
         assertThat(dto.isDeletable()).isTrue();
+        assertThat(dto.isBookEditable()).isTrue();
         assertThat(dto.isReturnable()).isFalse();
         assertThat(dto.getRecipientUsername()).isEqualTo("-");
     }
@@ -103,6 +105,46 @@ class BookMapperTest {
         assertThat(dto.isReturnable()).isTrue();
         assertThat(dto.isDeletable()).isFalse();
         assertThat(dto.getOwnerUsername()).isEqualTo(book.getOwner().getUsername());
+    }
+
+    @Test
+    void toEditBookRequest_mapsBookFields() {
+        Book book = Book.builder()
+                .title("Title")
+                .author("Author")
+                .description("Desc")
+                .category(Category.FANTASY)
+                .price(BigDecimal.TEN)
+                .build();
+
+        EditBookRequest request = BookMapper.toEditBookRequest(book);
+
+        assertThat(request.getTitle()).isEqualTo("Title");
+        assertThat(request.getAuthor()).isEqualTo("Author");
+        assertThat(request.getDescription()).isEqualTo("Desc");
+        assertThat(request.getCategory()).isEqualTo(Category.FANTASY);
+        assertThat(request.getPrice()).isEqualByComparingTo(BigDecimal.TEN);
+    }
+
+    @Test
+    void applyEditToBook_trimsFields() {
+        Book book = Book.builder()
+                .title("Old")
+                .author("Old")
+                .build();
+
+        BookMapper.applyEditToBook(book, EditBookRequest.builder()
+                .title(" New ")
+                .author(" Author ")
+                .description("  ")
+                .category(Category.HISTORY)
+                .price(BigDecimal.ONE)
+                .build());
+
+        assertThat(book.getTitle()).isEqualTo("New");
+        assertThat(book.getAuthor()).isEqualTo("Author");
+        assertThat(book.getDescription()).isNull();
+        assertThat(book.getCategory()).isEqualTo(Category.HISTORY);
     }
 
     @Test
