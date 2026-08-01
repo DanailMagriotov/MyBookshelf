@@ -7,7 +7,6 @@ import app.mapper.user.UserMapper;
 import app.model.dto.user.MyProfileUpdateRequest;
 import app.model.dto.user.UserSession;
 import app.model.entity.user.Region;
-import app.model.entity.user.UserRole;
 import app.repository.user.UserRepository;
 import app.service.user.UserService;
 import app.service.user.UserSessionService;
