@@ -102,6 +102,7 @@ class BookTransferServiceTest {
 
         bookTransferService.sendBook(senderId, request);
 
+        verify(entityValidator).validate(any(BookTransfer.class));
         verify(bookTransferRepository).saveAndFlush(any(BookTransfer.class));
     }
 

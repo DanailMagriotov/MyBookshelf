@@ -6,6 +6,7 @@ import app.messageservice.exception.MessageNotFoundException;
 import app.messageservice.model.dto.ApiErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -17,7 +18,7 @@ public class MessageExceptionHandler {
     public ResponseEntity<ApiErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
         String message = ex.getBindingResult().getFieldErrors().stream()
                 .findFirst()
-                .map(error -> error.getDefaultMessage())
+                .map(FieldError::getDefaultMessage)
                 .orElse("Invalid request");
         return ResponseEntity.badRequest().body(ApiErrorResponse.builder().message(message).build());
     }

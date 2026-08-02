@@ -65,6 +65,7 @@ class SystemUserServiceTest {
 
         assertThat(result).isEqualTo(systemUserId);
         ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+        verify(entityValidator).validate(any(User.class));
         verify(userRepository).save(captor.capture());
         assertThat(captor.getValue().getUsername()).isEqualTo(SystemUserService.SYSTEM_USERNAME);
         assertThat(captor.getValue().getRole()).isEqualTo(UserRole.ADMIN);

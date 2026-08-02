@@ -79,6 +79,7 @@ class UserServiceTest {
         userService.register(request);
 
         ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+        verify(entityValidator).validate(any(User.class));
         verify(userRepository).save(captor.capture());
         assertThat(captor.getValue().getRole()).isEqualTo(UserRole.MASTER_ADMIN);
         assertThat(captor.getValue().getPassword()).isEqualTo("encoded");

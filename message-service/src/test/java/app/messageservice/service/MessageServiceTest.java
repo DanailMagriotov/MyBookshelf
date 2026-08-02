@@ -54,6 +54,7 @@ class MessageServiceTest {
         var response = messageService.sendMessage(request);
 
         ArgumentCaptor<Message> captor = ArgumentCaptor.forClass(Message.class);
+        verify(entityValidator).validate(any(Message.class));
         verify(messageRepository).save(captor.capture());
         assertThat(captor.getValue().getAbout()).isEqualTo("Subject");
         assertThat(captor.getValue().getContent()).isEqualTo("Content");

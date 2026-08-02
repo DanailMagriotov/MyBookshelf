@@ -72,6 +72,7 @@ class BookServiceTest {
         bookService.addBook(ownerId, request);
 
         ArgumentCaptor<Book> captor = ArgumentCaptor.forClass(Book.class);
+        verify(entityValidator).validate(any(Book.class));
         verify(bookRepository).save(captor.capture());
         assertThat(captor.getValue().getTitle()).isEqualTo("Title");
         assertThat(captor.getValue().getOwner()).isEqualTo(owner);
