@@ -1,6 +1,5 @@
 package app.config;
 
-import app.security.UserSessionLoginSuccessHandler;
 import app.security.UserSessionLogoutHandler;
 import app.service.user.MyUserDetailsService;
 import org.springframework.context.annotation.Bean;
@@ -29,7 +28,6 @@ public class BeanConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
                                                    MyUserDetailsService userDetailsService,
-                                                   UserSessionLoginSuccessHandler loginSuccessHandler,
                                                    UserSessionLogoutHandler logoutHandler) {
 
         http
@@ -48,9 +46,6 @@ public class BeanConfiguration {
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .loginProcessingUrl("/login/process")
-                        .successHandler(loginSuccessHandler)
-                        .failureUrl("/login?error")
                         .permitAll()
                 )
                 .logout(logout -> logout

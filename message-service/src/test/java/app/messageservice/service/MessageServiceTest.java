@@ -109,21 +109,6 @@ class MessageServiceTest {
     }
 
     @Test
-    void markAsRead_marksUnreadMessageAsRead() {
-        UUID userId = UUID.randomUUID();
-        UUID messageId = UUID.randomUUID();
-        Message message = message(messageId, UUID.randomUUID(), userId);
-        message.setRead(false);
-
-        when(messageRepository.findById(messageId)).thenReturn(Optional.of(message));
-
-        var response = messageService.markAsRead(messageId, userId);
-
-        assertThat(response.isRead()).isTrue();
-        verify(messageRepository).save(message);
-    }
-
-    @Test
     void getInboxMessage_marksUnreadMessageAsRead() {
         UUID userId = UUID.randomUUID();
         UUID messageId = UUID.randomUUID();
@@ -195,20 +180,6 @@ class MessageServiceTest {
     }
 
     @Test
-    void markAsRead_doesNotSaveWhenAlreadyRead() {
-        UUID userId = UUID.randomUUID();
-        UUID messageId = UUID.randomUUID();
-        Message message = message(messageId, UUID.randomUUID(), userId);
-        message.setRead(true);
-
-        when(messageRepository.findById(messageId)).thenReturn(Optional.of(message));
-
-        messageService.markAsRead(messageId, userId);
-
-        verify(messageRepository, never()).save(message);
-    }
-
-    @Test
     void deleteMessage_throwsWhenMessageMissing() {
         UUID messageId = UUID.randomUUID();
         when(messageRepository.findById(messageId)).thenReturn(Optional.empty());
@@ -242,26 +213,6 @@ class MessageServiceTest {
 
         assertThat(response.isRead()).isTrue();
         verify(messageRepository, never()).save(message);
-    }
-
-    @Test
-    void markAsRead_throwsWhenMessageMissing() {
-        UUID messageId = UUID.randomUUID();
-        when(messageRepository.findById(messageId)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> messageService.markAsRead(messageId, UUID.randomUUID()))
-                .isInstanceOf(MessageNotFoundException.class);
-    }
-
-    @Test
-    void markAsRead_throwsWhenUserIsNotReceiver() {
-        UUID messageId = UUID.randomUUID();
-        Message message = message(messageId, UUID.randomUUID(), UUID.randomUUID());
-
-        when(messageRepository.findById(messageId)).thenReturn(Optional.of(message));
-
-        assertThatThrownBy(() -> messageService.markAsRead(messageId, UUID.randomUUID()))
-                .isInstanceOf(MessageAccessDeniedException.class);
     }
 
     @Test

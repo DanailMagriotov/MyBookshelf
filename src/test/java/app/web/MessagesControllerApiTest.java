@@ -249,30 +249,6 @@ class MessagesControllerApiTest {
     }
 
     @Test
-    void markAsRead_redirectsToInbox() throws Exception {
-        var session = authenticatedSession();
-        when(userSessionService.get(any())).thenReturn(Optional.of(session));
-        doNothing().when(messageAppService).markAsRead(userId, messageId);
-
-        mockMvc.perform(post("/messages/{messageId}/read", messageId).session(sessionWith(session)))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/messages/inbox"))
-                .andExpect(flash().attribute("successMessage", "Message marked as read."));
-    }
-
-    @Test
-    void markAsRead_whenUnavailable_redirectsWithServiceError() throws Exception {
-        var session = authenticatedSession();
-        when(userSessionService.get(any())).thenReturn(Optional.of(session));
-        doThrow(new MessageServiceUnavailableException(new RuntimeException("unavailable"))).when(messageAppService).markAsRead(userId, messageId);
-
-        mockMvc.perform(post("/messages/{messageId}/read", messageId).session(sessionWith(session)))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(flash().attribute("serviceError",
-                        "Messaging service is unavailable. Please try again later."));
-    }
-
-    @Test
     void deleteMessage_fromInbox_redirectsToInbox() throws Exception {
         var session = authenticatedSession();
         when(userSessionService.get(any())).thenReturn(Optional.of(session));

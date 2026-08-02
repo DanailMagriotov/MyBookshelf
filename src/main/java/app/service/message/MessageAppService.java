@@ -146,11 +146,6 @@ public class MessageAppService {
         sendSystemMessage(receiverId, ROLE_CHANGE_NOTIFICATION_ABOUT, content);
     }
 
-    public void markAsRead(UUID userId, UUID messageId) {
-        call(() -> messageServiceClient.markAsRead(messageId, userId));
-        log.info("User {} marked message {} as read", userId, messageId);
-    }
-
     public MessageViewDto viewInboxMessage(UUID userId, UUID messageId) {
         MessageDto message = call(() -> messageServiceClient.getInboxMessage(messageId, userId));
         User sender = userRepository.findById(message.getSenderId()).orElse(null);
@@ -183,7 +178,6 @@ public class MessageAppService {
                 .content(message.getContent())
                 .sentAt(message.getSentAt())
                 .read(message.isRead())
-                .markableAsRead(message.getReceiverId().equals(viewerId) && !message.isRead())
                 .deletable(message.getReceiverId().equals(viewerId) || message.getSenderId().equals(viewerId))
                 .build();
     }

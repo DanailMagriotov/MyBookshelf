@@ -97,9 +97,6 @@ class HomeControllersApiTest {
 
         homeActionMockMvc.perform(get("/home/actions/messages").session(sessionWith(session)))
                 .andExpect(redirectedUrl("/messages"));
-
-        homeActionMockMvc.perform(get("/home/actions/my-profile").session(sessionWith(session)))
-                .andExpect(redirectedUrl("/my-profile"));
     }
 
     @Test

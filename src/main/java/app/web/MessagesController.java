@@ -134,22 +134,6 @@ public class MessagesController {
         }
     }
 
-    @PostMapping("/{messageId}/read")
-    public String markAsRead(@PathVariable UUID messageId,
-                             HttpSession session,
-                             RedirectAttributes redirectAttributes) {
-        UserSession userSession = requireUserSession(session);
-
-        try {
-            messageAppService.markAsRead(userSession.getId(), messageId);
-            redirectAttributes.addFlashAttribute("successMessage", "Message marked as read.");
-        } catch (MessageServiceUnavailableException ex) {
-            redirectAttributes.addFlashAttribute("serviceError", "Messaging service is unavailable. Please try again later.");
-        }
-
-        return "redirect:/messages/inbox";
-    }
-
     @PostMapping("/{messageId}/delete")
     public String deleteMessage(@PathVariable UUID messageId,
                                 @RequestParam(required = false) String returnTo,

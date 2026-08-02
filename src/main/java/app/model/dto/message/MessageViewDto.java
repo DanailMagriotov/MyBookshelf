@@ -21,6 +21,5 @@ public class MessageViewDto {
     private String content;
     private LocalDateTime sentAt;
     private boolean read;
-    private boolean markableAsRead;
     private boolean deletable;
 }

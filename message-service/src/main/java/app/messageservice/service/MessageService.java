@@ -94,23 +94,6 @@ public class MessageService {
 
     @Transactional
     @CacheEvict(value = "unreadCounts", allEntries = true)
-    public MessageResponse markAsRead(UUID messageId, UUID userId) {
-        Message message = findMessage(messageId);
-        assertReceiver(message, userId);
-
-        if (!message.isRead()) {
-            message.setRead(true);
-            message.setReadAt(LocalDateTime.now());
-            entityValidator.validate(message);
-            messageRepository.save(message);
-            log.info("Message {} marked as read by {}", messageId, userId);
-        }
-
-        return MessageMapper.toMessageResponse(message);
-    }
-
-    @Transactional
-    @CacheEvict(value = "unreadCounts", allEntries = true)
     public void deleteMessage(UUID messageId, UUID userId) {
         Message message = findMessage(messageId);
 

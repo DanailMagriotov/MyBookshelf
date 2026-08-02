@@ -16,7 +16,6 @@ import com.jayway.jsonpath.JsonPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -76,11 +75,6 @@ class MessageServiceApplicationTests {
         mockMvc.perform(get("/api/messages/user/{userId}/sent", senderId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(messageId));
-
-        mockMvc.perform(put("/api/messages/{messageId}/read", messageId)
-                        .param("userId", receiverId.toString()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.read").value(true));
 
         mockMvc.perform(delete("/api/messages/{messageId}", messageId)
                         .param("userId", receiverId.toString()))

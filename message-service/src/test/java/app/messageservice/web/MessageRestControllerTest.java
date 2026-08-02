@@ -19,13 +19,11 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -108,23 +106,6 @@ class MessageRestControllerTest {
         mockMvc.perform(get("/api/messages/user/{userId}/unread-count", userId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").value(3));
-    }
-
-    @Test
-    void markAsRead_delegatesToService() throws Exception {
-        UUID messageId = UUID.randomUUID();
-        UUID userId = UUID.randomUUID();
-        when(messageService.markAsRead(messageId, userId)).thenReturn(MessageResponse.builder()
-                .id(messageId)
-                .read(true)
-                .build());
-
-        mockMvc.perform(put("/api/messages/{messageId}/read", messageId)
-                        .param("userId", userId.toString()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.read").value(true));
-
-        verify(messageService).markAsRead(eq(messageId), eq(userId));
     }
 
     @Test

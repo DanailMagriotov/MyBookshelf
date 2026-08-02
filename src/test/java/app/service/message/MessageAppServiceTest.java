@@ -134,7 +134,8 @@ class MessageAppServiceTest {
 
         assertThat(inbox).hasSize(1);
         assertThat(inbox.get(0).getSenderUsername()).isEqualTo("sender");
-        assertThat(inbox.get(0).isMarkableAsRead()).isTrue();
+        assertThat(inbox.get(0).isRead()).isFalse();
+        assertThat(inbox.get(0).isDeletable()).isTrue();
     }
 
     @Test
@@ -193,16 +194,6 @@ class MessageAppServiceTest {
         var page = messageAppService.getSentPage(senderId, PageRequest.of(0, 1));
 
         assertThat(page.getTotalElements()).isOne();
-    }
-
-    @Test
-    void markAsRead_delegatesToClient() {
-        UUID userId = UUID.randomUUID();
-        UUID messageId = UUID.randomUUID();
-
-        messageAppService.markAsRead(userId, messageId);
-
-        verify(messageServiceClient).markAsRead(messageId, userId);
     }
 
     @Test

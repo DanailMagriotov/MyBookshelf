@@ -28,7 +28,7 @@ The main app communicates with the message microservice through a **Feign client
 - **Data access:** Spring Data JPA / Hibernate
 - **Security:** Spring Security (custom login, bcrypt, HTTP session with `UserSession`)
 - **Inter-service communication:** Spring Cloud OpenFeign
-- **Validation:** Jakarta Bean Validation
+- **Validation:** Jakarta Bean Validation (DTOs, entities, service logic)
 - **Caching & scheduling:** Spring Cache, `@Scheduled` jobs
 - **Frontend:** Spring MVC + Thymeleaf, CSS, JavaScript
 - **Testing:** JUnit 5, Mockito, MockMvc, H2 (test profile), JaCoCo (70% line coverage gate)
@@ -68,7 +68,7 @@ The main app communicates with the message microservice through a **Feign client
 
 - Send messages to other users by username
 - Inbox (6 messages per page), sent list (8 per page), unread counter
-- Mark as read, soft delete (hidden from inbox/sent; permanently removed when both sides delete)
+- Opening an inbox message marks it as read; soft delete (hidden from inbox/sent; permanently removed when both sides delete)
 - **System messages** from a dedicated system account (overdue return reminders, role change notifications)
 - Graceful degradation when message-service is unavailable
 
@@ -89,6 +89,7 @@ The main app communicates with the message microservice through a **Feign client
 
 ### Cross-cutting
 
+- Validation on all layers: DTOs (`@Valid`), entities (Bean Validation + `EntityValidator` before persist), and service business rules
 - Custom error page (`error.html`) and `@ControllerAdvice` exception handling
 - Structured logging in service layer (books, transfers, users, messages)
 - In-memory caching for bookshelf counts, sendable books, unread message counts
