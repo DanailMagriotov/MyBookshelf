@@ -1,5 +1,6 @@
 package app.service.booktransfer;
 
+import app.event.BookSentEvent;
 import app.exception.AccessDeniedException;
 import app.exception.BookNotAvailableForTransferException;
 import app.exception.InvalidReturnDeadlineException;
@@ -23,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,17 +44,20 @@ public class BookTransferService {
     private final UserRepository userRepository;
     private final MessageAppService messageAppService;
     private final EntityValidator entityValidator;
+    private final ApplicationEventPublisher eventPublisher;
 
     public BookTransferService(BookRepository bookRepository,
                                BookTransferRepository bookTransferRepository,
                                UserRepository userRepository,
                                MessageAppService messageAppService,
-                               EntityValidator entityValidator) {
+                               EntityValidator entityValidator,
+                               ApplicationEventPublisher eventPublisher) {
         this.bookRepository = bookRepository;
         this.bookTransferRepository = bookTransferRepository;
         this.userRepository = userRepository;
         this.messageAppService = messageAppService;
         this.entityValidator = entityValidator;
+        this.eventPublisher = eventPublisher;
     }
 
     @Cacheable(value = "sendableBooks", key = "#ownerId")
@@ -105,6 +110,8 @@ public class BookTransferService {
             entityValidator.validate(transfer);
             bookTransferRepository.saveAndFlush(transfer);
             log.info("User {} sent book {} to {}", senderId, book.getId(), receiverUsername);
+            eventPublisher.publishEvent(new BookSentEvent(
+                    senderId, receiver.getId(), book.getId(), book.getTitle()));
         } catch (DataIntegrityViolationException ex) {
             throw new BookNotAvailableForTransferException();
         }

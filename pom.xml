@@ -217,6 +217,7 @@
                                         <include>app/mapper/**</include>
                                         <include>app/security/**</include>
                                         <include>app/scheduler/**</include>
+                                        <include>app/event/**</include>
                                         <include>app/config/**</include>
                                         <include>app/exception/**</include>
                                     </includes>

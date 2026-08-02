@@ -1,7 +1,7 @@
 package app.service.user;
 
+import app.event.UserRoleChangedEvent;
 import app.exception.EmailAlreadyExistsException;
-import app.exception.MessageServiceUnavailableException;
 import app.exception.NotAuthenticatedException;
 import app.exception.UsernameAlreadyExistsException;
 import app.mapper.user.UserMapper;
@@ -14,10 +14,10 @@ import app.model.entity.user.UserRole;
 import app.repository.book.BookRepository;
 import app.repository.booktransfer.BookTransferRepository;
 import app.repository.user.UserRepository;
-import app.service.message.MessageAppService;
 import app.validation.EntityValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -40,21 +40,21 @@ public class UserService {
     private final BookRepository bookRepository;
     private final BookTransferRepository bookTransferRepository;
     private final PasswordEncoder passwordEncoder;
-    private final MessageAppService messageAppService;
     private final EntityValidator entityValidator;
+    private final ApplicationEventPublisher eventPublisher;
 
     public UserService(UserRepository userRepository,
                        BookRepository bookRepository,
                        BookTransferRepository bookTransferRepository,
                        PasswordEncoder passwordEncoder,
-                       MessageAppService messageAppService,
-                       EntityValidator entityValidator) {
+                       EntityValidator entityValidator,
+                       ApplicationEventPublisher eventPublisher) {
         this.userRepository = userRepository;
         this.bookRepository = bookRepository;
         this.bookTransferRepository = bookTransferRepository;
         this.passwordEncoder = passwordEncoder;
-        this.messageAppService = messageAppService;
         this.entityValidator = entityValidator;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
@@ -192,7 +192,7 @@ public class UserService {
         userRepository.save(targetUser);
         log.info("Admin {} changed role of user {} from {} to {}",
                 actingAdminId, targetUserId, previousRole, newRole);
-        notifyRoleChange(targetUserId, newRole);
+        eventPublisher.publishEvent(new UserRoleChangedEvent(targetUserId, newRole));
         return true;
     }
 
@@ -216,14 +216,6 @@ public class UserService {
 
         return userRepository.findByUsernameNot(SystemUserService.SYSTEM_USERNAME, pageRequest)
                 .map(user -> UserMapper.toAdminUserDto(user, bookRepository.countByOwner_Id(user.getId())));
-    }
-
-    private void notifyRoleChange(UUID targetUserId, UserRole newRole) {
-        try {
-            messageAppService.sendRoleChangeNotification(targetUserId, newRole);
-        } catch (MessageServiceUnavailableException ex) {
-            log.error("Role changed for user {} but notification could not be sent", targetUserId);
-        }
     }
 
     private String trimToNull(String value) {

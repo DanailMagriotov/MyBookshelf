@@ -1,5 +1,6 @@
 package app.service.booktransfer;
 
+import app.event.BookSentEvent;
 import app.exception.AccessDeniedException;
 import app.exception.BookNotAvailableForTransferException;
 import app.exception.InvalidReturnDeadlineException;
@@ -24,6 +25,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.time.LocalDate;
@@ -58,6 +60,9 @@ class BookTransferServiceTest {
 
     @Mock
     private EntityValidator entityValidator;
+
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
 
     @InjectMocks
     private BookTransferService bookTransferService;
@@ -104,6 +109,7 @@ class BookTransferServiceTest {
 
         verify(entityValidator).validate(any(BookTransfer.class));
         verify(bookTransferRepository).saveAndFlush(any(BookTransfer.class));
+        verify(eventPublisher).publishEvent(new BookSentEvent(senderId, receiverId, bookId, "Title"));
     }
 
     @Test

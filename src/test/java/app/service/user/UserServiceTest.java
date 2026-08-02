@@ -1,5 +1,6 @@
 package app.service.user;
 
+import app.event.UserRoleChangedEvent;
 import app.exception.EmailAlreadyExistsException;
 import app.exception.NotAuthenticatedException;
 import app.exception.UsernameAlreadyExistsException;
@@ -12,7 +13,6 @@ import app.model.entity.user.UserRole;
 import app.repository.book.BookRepository;
 import app.repository.booktransfer.BookTransferRepository;
 import app.repository.user.UserRepository;
-import app.service.message.MessageAppService;
 import app.validation.EntityValidator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,6 +20,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -33,7 +34,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -54,10 +54,10 @@ class UserServiceTest {
     private PasswordEncoder passwordEncoder;
 
     @Mock
-    private MessageAppService messageAppService;
+    private EntityValidator entityValidator;
 
     @Mock
-    private EntityValidator entityValidator;
+    private ApplicationEventPublisher eventPublisher;
 
     @InjectMocks
     private UserService userService;
@@ -65,13 +65,13 @@ class UserServiceTest {
     @Test
     void register_firstUserBecomesMasterAdmin() {
         UserRegRequest request = UserRegRequest.builder()
-                .username("alice")
+                .username("Alice")
                 .email("alice@example.com")
                 .password("password")
                 .region(Region.SOFIA)
                 .build();
 
-        when(userRepository.existsByUsername("alice")).thenReturn(false);
+        when(userRepository.existsByUsername("Alice")).thenReturn(false);
         when(userRepository.existsByEmail("alice@example.com")).thenReturn(false);
         when(userRepository.count()).thenReturn(0L);
         when(passwordEncoder.encode("password")).thenReturn("encoded");
@@ -108,10 +108,10 @@ class UserServiceTest {
 
     @Test
     void register_throwsWhenUsernameExists() {
-        when(userRepository.existsByUsername("alice")).thenReturn(true);
+        when(userRepository.existsByUsername("Alice")).thenReturn(true);
 
         assertThatThrownBy(() -> userService.register(UserRegRequest.builder()
-                .username("alice")
+                .username("Alice")
                 .email("alice@example.com")
                 .password("password")
                 .region(Region.SOFIA)
@@ -121,11 +121,11 @@ class UserServiceTest {
 
     @Test
     void register_throwsWhenEmailExists() {
-        when(userRepository.existsByUsername("alice")).thenReturn(false);
+        when(userRepository.existsByUsername("Alice")).thenReturn(false);
         when(userRepository.existsByEmail("alice@example.com")).thenReturn(true);
 
         assertThatThrownBy(() -> userService.register(UserRegRequest.builder()
-                .username("alice")
+                .username("Alice")
                 .email("alice@example.com")
                 .password("password")
                 .region(Region.SOFIA)
@@ -222,7 +222,7 @@ class UserServiceTest {
 
         assertThat(target.getRole()).isEqualTo(UserRole.ADMIN);
         verify(userRepository).save(target);
-        verify(messageAppService).sendRoleChangeNotification(targetId, UserRole.ADMIN);
+        verify(eventPublisher).publishEvent(new UserRoleChangedEvent(targetId, UserRole.ADMIN));
     }
 
     @Test
@@ -237,7 +237,7 @@ class UserServiceTest {
                 targetId, UserRole.USER, masterAdminId, UserRole.MASTER_ADMIN)).isTrue();
 
         assertThat(target.getRole()).isEqualTo(UserRole.USER);
-        verify(messageAppService).sendRoleChangeNotification(targetId, UserRole.USER);
+        verify(eventPublisher).publishEvent(new UserRoleChangedEvent(targetId, UserRole.USER));
     }
 
     @Test
@@ -253,7 +253,7 @@ class UserServiceTest {
 
         assertThat(target.getRole()).isEqualTo(UserRole.ADMIN);
         verify(userRepository, never()).save(target);
-        verify(messageAppService, never()).sendRoleChangeNotification(any(), any());
+        verify(eventPublisher, never()).publishEvent(any());
     }
 
     @Test
@@ -293,22 +293,6 @@ class UserServiceTest {
                 systemUserId, UserRole.USER, masterAdminId, UserRole.MASTER_ADMIN)).isFalse();
 
         verify(userRepository, never()).save(systemUser);
-    }
-
-    @Test
-    void changeUserRoleByAdmin_keepsRoleWhenNotificationFails() {
-        UUID adminId = UUID.randomUUID();
-        UUID targetId = UUID.randomUUID();
-        User target = user(targetId, UserRole.USER);
-
-        when(userRepository.findById(targetId)).thenReturn(Optional.of(target));
-        doThrow(app.exception.MessageServiceUnavailableException.class)
-                .when(messageAppService).sendRoleChangeNotification(targetId, UserRole.ADMIN);
-
-        assertThat(userService.changeUserRoleByAdmin(
-                targetId, UserRole.ADMIN, adminId, UserRole.ADMIN)).isTrue();
-
-        assertThat(target.getRole()).isEqualTo(UserRole.ADMIN);
     }
 
     @Test
