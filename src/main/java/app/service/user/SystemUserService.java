@@ -4,6 +4,7 @@ import app.model.entity.user.Region;
 import app.model.entity.user.User;
 import app.model.entity.user.UserRole;
 import app.repository.user.UserRepository;
+import app.validation.EntityValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,10 +23,14 @@ public class SystemUserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EntityValidator entityValidator;
 
-    public SystemUserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public SystemUserService(UserRepository userRepository,
+                             PasswordEncoder passwordEncoder,
+                             EntityValidator entityValidator) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.entityValidator = entityValidator;
     }
 
     @Transactional
@@ -44,6 +49,7 @@ public class SystemUserService {
                 .region(Region.SOFIA)
                 .build();
 
+        entityValidator.validate(systemUser);
         UUID systemUserId = userRepository.save(systemUser).getId();
         log.info("Created system user with id {}", systemUserId);
         return systemUserId;

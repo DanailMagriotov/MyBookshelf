@@ -1,5 +1,6 @@
 package app.web;
 
+import app.exception.EntityValidationException;
 import org.junit.jupiter.api.Test;
 import org.springframework.ui.ConcurrentModel;
 import org.springframework.ui.Model;
@@ -29,6 +30,17 @@ class WebExceptionHandlerTest {
         assertThat(view).isEqualTo("error");
         assertThat(model.getAttribute("status")).isEqualTo(405);
         assertThat(model.getAttribute("message")).isEqualTo("This action is not supported.");
+    }
+
+    @Test
+    void handleEntityValidation_returnsErrorViewWithAttributes() {
+        Model model = new ConcurrentModel();
+
+        String view = handler.handleEntityValidation(new EntityValidationException("Title is required"), model);
+
+        assertThat(view).isEqualTo("error");
+        assertThat(model.getAttribute("status")).isEqualTo(400);
+        assertThat(model.getAttribute("message")).isEqualTo("Title is required");
     }
 
     @Test

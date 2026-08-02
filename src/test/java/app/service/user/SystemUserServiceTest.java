@@ -4,6 +4,7 @@ import app.model.entity.user.Region;
 import app.model.entity.user.User;
 import app.model.entity.user.UserRole;
 import app.repository.user.UserRepository;
+import app.validation.EntityValidator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -28,6 +29,9 @@ class SystemUserServiceTest {
 
     @Mock
     private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private EntityValidator entityValidator;
 
     @InjectMocks
     private SystemUserService systemUserService;

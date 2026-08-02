@@ -11,6 +11,7 @@ import app.model.entity.user.User;
 import app.repository.book.BookRepository;
 import app.repository.booktransfer.BookTransferRepository;
 import app.repository.user.UserRepository;
+import app.validation.EntityValidator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -34,13 +35,16 @@ public class BookService {
     private final BookRepository bookRepository;
     private final BookTransferRepository bookTransferRepository;
     private final UserRepository userRepository;
+    private final EntityValidator entityValidator;
 
     public BookService(BookRepository bookRepository,
                        BookTransferRepository bookTransferRepository,
-                       UserRepository userRepository) {
+                       UserRepository userRepository,
+                       EntityValidator entityValidator) {
         this.bookRepository = bookRepository;
         this.bookTransferRepository = bookTransferRepository;
         this.userRepository = userRepository;
+        this.entityValidator = entityValidator;
     }
 
     @Transactional
@@ -50,6 +54,7 @@ public class BookService {
                 .orElseThrow(NotAuthenticatedException::new);
 
         Book book = BookMapper.toBookEntity(request, owner);
+        entityValidator.validate(book);
         bookRepository.save(book);
         log.info("User {} added book '{}'", ownerId, book.getTitle());
     }
@@ -92,6 +97,7 @@ public class BookService {
 
         assertBookMetadataEditable(book, bookId);
         BookMapper.applyEditToBook(book, request);
+        entityValidator.validate(book);
         bookRepository.save(book);
         log.info("User {} updated book {}", ownerId, bookId);
     }

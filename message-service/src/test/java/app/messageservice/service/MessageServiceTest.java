@@ -5,6 +5,7 @@ import app.messageservice.exception.MessageNotFoundException;
 import app.messageservice.model.dto.SendMessageRequest;
 import app.messageservice.model.entity.Message;
 import app.messageservice.repository.MessageRepository;
+import app.messageservice.validation.EntityValidator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -29,6 +30,9 @@ class MessageServiceTest {
 
     @Mock
     private MessageRepository messageRepository;
+
+    @Mock
+    private EntityValidator entityValidator;
 
     @InjectMocks
     private MessageService messageService;

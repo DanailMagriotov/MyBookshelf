@@ -1,5 +1,6 @@
 package app.messageservice.web;
 
+import app.messageservice.exception.EntityValidationException;
 import app.messageservice.exception.MessageAccessDeniedException;
 import app.messageservice.exception.MessageNotFoundException;
 import app.messageservice.model.dto.ApiErrorResponse;
@@ -19,6 +20,12 @@ public class MessageExceptionHandler {
                 .map(error -> error.getDefaultMessage())
                 .orElse("Invalid request");
         return ResponseEntity.badRequest().body(ApiErrorResponse.builder().message(message).build());
+    }
+
+    @ExceptionHandler(EntityValidationException.class)
+    public ResponseEntity<ApiErrorResponse> handleEntityValidation(EntityValidationException ex) {
+        return ResponseEntity.badRequest()
+                .body(ApiErrorResponse.builder().message(ex.getMessage()).build());
     }
 
     @ExceptionHandler(MessageNotFoundException.class)

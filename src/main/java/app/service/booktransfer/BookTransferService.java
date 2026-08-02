@@ -18,6 +18,7 @@ import app.repository.book.BookRepository;
 import app.repository.booktransfer.BookTransferRepository;
 import app.repository.user.UserRepository;
 import app.service.message.MessageAppService;
+import app.validation.EntityValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
@@ -40,15 +41,18 @@ public class BookTransferService {
     private final BookTransferRepository bookTransferRepository;
     private final UserRepository userRepository;
     private final MessageAppService messageAppService;
+    private final EntityValidator entityValidator;
 
     public BookTransferService(BookRepository bookRepository,
                                BookTransferRepository bookTransferRepository,
                                UserRepository userRepository,
-                               MessageAppService messageAppService) {
+                               MessageAppService messageAppService,
+                               EntityValidator entityValidator) {
         this.bookRepository = bookRepository;
         this.bookTransferRepository = bookTransferRepository;
         this.userRepository = userRepository;
         this.messageAppService = messageAppService;
+        this.entityValidator = entityValidator;
     }
 
     @Cacheable(value = "sendableBooks", key = "#ownerId")
@@ -98,6 +102,7 @@ public class BookTransferService {
                 .build();
 
         try {
+            entityValidator.validate(transfer);
             bookTransferRepository.saveAndFlush(transfer);
             log.info("User {} sent book {} to {}", senderId, book.getId(), receiverUsername);
         } catch (DataIntegrityViolationException ex) {
@@ -116,6 +121,7 @@ public class BookTransferService {
         if (book != null && sender != null) {
             book.setOwner(sender);
             book.setOwnerLabel(BookMapper.DEFAULT_OWNER_LABEL);
+            entityValidator.validate(book);
             bookRepository.save(book);
         }
 
@@ -152,6 +158,7 @@ public class BookTransferService {
         transfer.setReturnAt(returnDeadline.atTime(23, 59));
         transfer.setUpdatedAt(LocalDateTime.now());
         transfer.setOverdueReminderSent(false);
+        entityValidator.validate(transfer);
         bookTransferRepository.save(transfer);
         log.info("User {} updated return deadline for book {} to {}", ownerId, bookId, returnDeadline);
     }

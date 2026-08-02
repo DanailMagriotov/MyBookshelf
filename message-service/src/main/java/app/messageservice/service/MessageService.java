@@ -7,6 +7,7 @@ import app.messageservice.model.dto.MessageResponse;
 import app.messageservice.model.dto.SendMessageRequest;
 import app.messageservice.model.entity.Message;
 import app.messageservice.repository.MessageRepository;
+import app.messageservice.validation.EntityValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
@@ -24,9 +25,11 @@ public class MessageService {
     private static final Logger log = LoggerFactory.getLogger(MessageService.class);
 
     private final MessageRepository messageRepository;
+    private final EntityValidator entityValidator;
 
-    public MessageService(MessageRepository messageRepository) {
+    public MessageService(MessageRepository messageRepository, EntityValidator entityValidator) {
         this.messageRepository = messageRepository;
+        this.entityValidator = entityValidator;
     }
 
     @Transactional
@@ -47,6 +50,7 @@ public class MessageService {
                 .hiddenFromReceiver(false)
                 .build();
 
+        entityValidator.validate(message);
         Message saved = messageRepository.save(message);
         log.info("Message {} sent from {} to {}", saved.getId(), saved.getSenderId(), saved.getReceiverId());
         return MessageMapper.toMessageResponse(saved);
@@ -80,6 +84,7 @@ public class MessageService {
         if (!message.isRead()) {
             message.setRead(true);
             message.setReadAt(LocalDateTime.now());
+            entityValidator.validate(message);
             messageRepository.save(message);
             log.info("Message {} marked as read by {}", messageId, userId);
         }
@@ -96,6 +101,7 @@ public class MessageService {
         if (!message.isRead()) {
             message.setRead(true);
             message.setReadAt(LocalDateTime.now());
+            entityValidator.validate(message);
             messageRepository.save(message);
             log.info("Message {} marked as read by {}", messageId, userId);
         }
@@ -132,6 +138,7 @@ public class MessageService {
             return;
         }
 
+        entityValidator.validate(message);
         messageRepository.save(message);
     }
 

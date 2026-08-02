@@ -14,6 +14,7 @@ import app.model.entity.user.UserRole;
 import app.repository.book.BookRepository;
 import app.repository.booktransfer.BookTransferRepository;
 import app.repository.user.UserRepository;
+import app.validation.EntityValidator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -48,6 +49,9 @@ class BookServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private EntityValidator entityValidator;
 
     @InjectMocks
     private BookService bookService;

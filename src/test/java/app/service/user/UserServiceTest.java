@@ -13,6 +13,7 @@ import app.repository.book.BookRepository;
 import app.repository.booktransfer.BookTransferRepository;
 import app.repository.user.UserRepository;
 import app.service.message.MessageAppService;
+import app.validation.EntityValidator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -54,6 +55,9 @@ class UserServiceTest {
 
     @Mock
     private MessageAppService messageAppService;
+
+    @Mock
+    private EntityValidator entityValidator;
 
     @InjectMocks
     private UserService userService;

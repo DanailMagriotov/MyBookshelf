@@ -3,6 +3,8 @@ package app.messageservice.web;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
+import app.messageservice.exception.EntityValidationException;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 class MessageExceptionHandlerTest {
@@ -37,6 +39,15 @@ class MessageExceptionHandlerTest {
         org.mockito.Mockito.when(bindingResult.getFieldErrors()).thenReturn(java.util.List.of(fieldError));
 
         var response = handler.handleValidation(ex);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().getMessage()).isEqualTo("Message subject is required");
+    }
+
+    @Test
+    void handleEntityValidation_returns400() {
+        var response = handler.handleEntityValidation(new EntityValidationException("Message subject is required"));
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(response.getBody()).isNotNull();

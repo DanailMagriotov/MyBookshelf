@@ -15,6 +15,7 @@ import app.repository.book.BookRepository;
 import app.repository.booktransfer.BookTransferRepository;
 import app.repository.user.UserRepository;
 import app.service.message.MessageAppService;
+import app.validation.EntityValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -40,17 +41,20 @@ public class UserService {
     private final BookTransferRepository bookTransferRepository;
     private final PasswordEncoder passwordEncoder;
     private final MessageAppService messageAppService;
+    private final EntityValidator entityValidator;
 
     public UserService(UserRepository userRepository,
                        BookRepository bookRepository,
                        BookTransferRepository bookTransferRepository,
                        PasswordEncoder passwordEncoder,
-                       MessageAppService messageAppService) {
+                       MessageAppService messageAppService,
+                       EntityValidator entityValidator) {
         this.userRepository = userRepository;
         this.bookRepository = bookRepository;
         this.bookTransferRepository = bookTransferRepository;
         this.passwordEncoder = passwordEncoder;
         this.messageAppService = messageAppService;
+        this.entityValidator = entityValidator;
     }
 
     @Transactional
@@ -66,6 +70,7 @@ public class UserService {
         String encodedPassword = passwordEncoder.encode(userRegRequest.getPassword());
         UserRole role = userRepository.count() == 0 ? UserRole.MASTER_ADMIN : UserRole.USER;
         User userEntity = UserMapper.toUserEntity(userRegRequest, encodedPassword, role);
+        entityValidator.validate(userEntity);
         userRepository.save(userEntity);
         log.info("Registered user '{}' with role {}", userRegRequest.getUsername(), role);
     }
@@ -88,6 +93,7 @@ public class UserService {
             user.setPassword(passwordEncoder.encode(request.getPassword()));
         }
 
+        entityValidator.validate(user);
         User savedUser = userRepository.save(user);
         log.info("User {} updated profile", userId);
         return UserMapper.toUserSession(savedUser);

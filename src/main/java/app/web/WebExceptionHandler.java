@@ -1,6 +1,7 @@
 package app.web;
 
 import app.exception.AccessDeniedException;
+import app.exception.EntityValidationException;
 import app.exception.NotAuthenticatedException;
 import org.springframework.ui.Model;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -19,6 +20,13 @@ public class WebExceptionHandler {
     @ExceptionHandler(AccessDeniedException.class)
     public String handleAccessDenied() {
         return "redirect:/home";
+    }
+
+    @ExceptionHandler(EntityValidationException.class)
+    public String handleEntityValidation(EntityValidationException ex, Model model) {
+        model.addAttribute("status", 400);
+        model.addAttribute("message", ex.getMessage());
+        return "error";
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
