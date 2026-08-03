@@ -23,6 +23,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -109,6 +110,13 @@ public class BookService {
 
         return bookRepository.findVisibleBooksForUser(ownerId, pageRequest)
                 .map(book -> toMyBookshelfBookDto(book, ownerId));
+    }
+
+    public List<MyBookshelfBookDto> getAllVisibleBooksForExport(UUID ownerId) {
+        Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE, Sort.by("title").ascending());
+        return bookRepository.findVisibleBooksForUser(ownerId, pageable)
+                .map(book -> toMyBookshelfBookDto(book, ownerId))
+                .getContent();
     }
 
     @Cacheable(value = "bookshelfCounts", key = "#userId")

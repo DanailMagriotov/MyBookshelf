@@ -7,6 +7,7 @@ import app.model.dto.book.EditTransferRequest;
 import app.model.dto.book.MyBookshelfBookDto;
 import app.model.entity.book.Book;
 import app.model.entity.book.Category;
+import app.service.book.BookExportService;
 import app.service.book.BookService;
 import app.service.booktransfer.BookTransferService;
 import app.service.user.UserService;
@@ -37,7 +38,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
@@ -47,6 +50,9 @@ class BookControllersApiTest {
 
     @Mock
     private BookService bookService;
+
+    @Mock
+    private BookExportService bookExportService;
 
     @Mock
     private BookTransferService bookTransferService;
@@ -70,7 +76,8 @@ class BookControllersApiTest {
         addBookMockMvc = standaloneWithPageable(new AddBookController(bookService, userSessionService)).build();
         editBookMockMvc = standaloneWithPageable(new EditBookController(bookService, userSessionService)).build();
         myBookshelfMockMvc = standaloneWithPageable(
-                new MyBookshelfController(bookService, bookTransferService, userSessionService)).build();
+                new MyBookshelfController(bookService, bookExportService, bookTransferService, userSessionService))
+                .build();
         sendBookMockMvc = standaloneWithPageable(
                 new SendBookController(bookTransferService, userService, userSessionService)).build();
     }
@@ -188,6 +195,22 @@ class BookControllersApiTest {
         myBookshelfMockMvc.perform(get("/my-bookshelf").session(sessionWith(session)))
                 .andExpect(status().isOk())
                 .andExpect(view().name("my-bookshelf"));
+    }
+
+    @Test
+    void exportBookshelf_returnsExcelFile() throws Exception {
+        var session = authenticatedSession();
+        byte[] excelBytes = new byte[]{1, 2, 3, 4};
+
+        when(userSessionService.get(any())).thenReturn(Optional.of(session));
+        when(bookExportService.exportBookshelfToExcel(userId)).thenReturn(excelBytes);
+
+        myBookshelfMockMvc.perform(get("/my-bookshelf/export").session(sessionWith(session)))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Disposition", "attachment; filename=\"my-bookshelf.xlsx\""))
+                .andExpect(content().contentType(
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .andExpect(content().bytes(excelBytes));
     }
 
     @Test

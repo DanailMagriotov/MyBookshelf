@@ -201,6 +201,20 @@ class BookServiceTest {
     }
 
     @Test
+    void getAllVisibleBooksForExport_returnsMappedList() {
+        UUID ownerId = UUID.randomUUID();
+        Book book = book(UUID.randomUUID(), ownerId, BookMapper.DEFAULT_OWNER_LABEL);
+        Page<Book> page = new PageImpl<>(List.of(book));
+
+        when(bookRepository.findVisibleBooksForUser(eq(ownerId), any(PageRequest.class))).thenReturn(page);
+        when(bookTransferRepository.findByBook_Id(book.getId())).thenReturn(Optional.empty());
+
+        List<?> result = bookService.getAllVisibleBooksForExport(ownerId);
+
+        assertThat(result).hasSize(1);
+    }
+
+    @Test
     void countVisibleBooksForUser_delegatesToRepository() {
         UUID userId = UUID.randomUUID();
         when(bookRepository.countVisibleBooksForUser(userId)).thenReturn(3L);

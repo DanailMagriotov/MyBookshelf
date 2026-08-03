@@ -61,10 +61,23 @@
     font-size: clamp(12px, min(1.3vw, 2.3cqh), 15px);
     font-family: "Trebuchet MS", sans-serif;
     flex-shrink: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: clamp(8px, 1.5cqw, 14px);
 }
 
 .book-list-counter-value {
     font-weight: 700;
+}
+
+.book-list-export {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    box-sizing: border-box;
 }
 
 .book-list-alert {

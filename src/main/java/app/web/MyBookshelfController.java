@@ -5,6 +5,7 @@ import app.model.dto.book.EditTransferRequest;
 import app.model.dto.book.MyBookshelfBookDto;
 import app.model.dto.user.UserSession;
 import app.model.entity.book.Book;
+import app.service.book.BookExportService;
 import app.service.book.BookService;
 import app.service.booktransfer.BookTransferService;
 import app.service.user.UserSessionService;
@@ -13,6 +14,9 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -31,14 +35,20 @@ import java.util.UUID;
 @RequestMapping("/my-bookshelf")
 public class MyBookshelfController {
 
+    private static final MediaType EXCEL_MEDIA_TYPE = MediaType.parseMediaType(
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+
     private final BookService bookService;
+    private final BookExportService bookExportService;
     private final BookTransferService bookTransferService;
     private final UserSessionService userSessionService;
 
     public MyBookshelfController(BookService bookService,
+                                 BookExportService bookExportService,
                                  BookTransferService bookTransferService,
                                  UserSessionService userSessionService) {
         this.bookService = bookService;
+        this.bookExportService = bookExportService;
         this.bookTransferService = bookTransferService;
         this.userSessionService = userSessionService;
     }
@@ -59,6 +69,17 @@ public class MyBookshelfController {
         model.addAttribute("hasNext", bookPage.hasNext());
 
         return "my-bookshelf";
+    }
+
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> exportBookshelf(HttpSession session) {
+        UserSession userSession = requireUserSession(session);
+        byte[] excelBytes = bookExportService.exportBookshelfToExcel(userSession.getId());
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"my-bookshelf.xlsx\"")
+                .contentType(EXCEL_MEDIA_TYPE)
+                .body(excelBytes);
     }
 
     @PostMapping("/delete/{bookId}")

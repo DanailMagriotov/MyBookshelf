@@ -24,6 +24,8 @@
             <p class="book-list-counter">
                 <span class="book-list-counter-label">Books on my shelf:</span>
                 <span class="book-list-counter-value" th:text="${totalBooks}">0</span>
+                <a class="book-delete-btn book-edit-link book-list-export"
+                   th:href="@{/my-bookshelf/export}">Export</a>
             </p>
 
             <div class="book-list-table-wrap">
