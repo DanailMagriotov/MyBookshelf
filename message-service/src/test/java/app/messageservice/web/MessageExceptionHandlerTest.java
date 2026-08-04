@@ -67,4 +67,31 @@ class MessageExceptionHandlerTest {
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().getMessage()).isEqualTo("Invalid request");
     }
+
+    @Test
+    void handleResourceNotFound_returns404() {
+        var response = handler.handleResourceNotFound();
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().getMessage()).isEqualTo("The requested resource was not found");
+    }
+
+    @Test
+    void handleMethodNotSupported_returns405() {
+        var response = handler.handleMethodNotSupported();
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.METHOD_NOT_ALLOWED);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().getMessage()).isEqualTo("This action is not supported");
+    }
+
+    @Test
+    void handleUnexpected_returns500() {
+        var response = handler.handleUnexpected();
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().getMessage()).isEqualTo("An unexpected error occurred");
+    }
 }
