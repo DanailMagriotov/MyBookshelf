@@ -42,7 +42,13 @@ public class BeanConfiguration {
                                 "/images/**",
                                 "/js/**"
                         ).permitAll()
+                        .requestMatchers("/users/**", "/home/actions/users")
+                        .hasAnyRole("ADMIN", "MASTER_ADMIN")
                         .anyRequest().authenticated()
+                )
+                .exceptionHandling(ex -> ex
+                        .accessDeniedHandler((request, response, accessDeniedException) ->
+                                response.sendRedirect(request.getContextPath() + "/home"))
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
