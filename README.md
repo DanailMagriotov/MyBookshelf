@@ -26,7 +26,7 @@ The main app communicates with the message microservice through a **Feign client
 - **Build tool:** Maven
 - **Database:** MySQL 8+
 - **Data access:** Spring Data JPA / Hibernate
-- **Security:** Spring Security (custom login, bcrypt, HTTP session with `UserSession`)
+- **Security:** Spring Security (custom login, bcrypt, HTTP session with `UserSession`, CSRF enabled)
 - **Inter-service communication:** Spring Cloud OpenFeign
 - **Validation:** Jakarta Bean Validation (DTOs, entities, service logic)
 - **Caching & scheduling:** Spring Cache, `@Scheduled` jobs
@@ -47,6 +47,11 @@ The main app communicates with the message microservice through a **Feign client
 - Session-based authentication (`UserSession` stored in HTTP session)
 - Roles: **USER**, **ADMIN**, **MASTER_ADMIN**
 - The **first registered user** receives **MASTER_ADMIN**; all later registrations receive **USER**
+- Access levels in Spring Security:
+  - **Open** — landing, login, register, static resources
+  - **Authenticated** — bookshelf, transfers, profile, messaging
+  - **Authorized** — `/users/**` and `/home/actions/users` require `ADMIN` or `MASTER_ADMIN` (`hasAnyRole`)
+- CSRF protection enabled (not disabled)
 - Guests: landing, login, register only
 - Authenticated users: bookshelf, transfers, profile, messaging
 - Admin screens (`/users`): visible to **ADMIN** and **MASTER_ADMIN**
@@ -93,8 +98,11 @@ The main app communicates with the message microservice through a **Feign client
 
 ### Cross-cutting
 
+- Layered architecture: Controllers → Services → Repositories (no repository access from controllers)
 - Validation on all layers: DTOs (`@Valid`), entities (Bean Validation + `EntityValidator` before persist), and service business rules
-- Custom error page (`error.html`) and `@ControllerAdvice` exception handling
+- Exception handling in both applications:
+  - **Main app** — `@ControllerAdvice` with custom page `error.html`; whitelabel disabled
+  - **message-service** — `@RestControllerAdvice` returning JSON `ApiErrorResponse`; whitelabel disabled
 - Structured logging in service layer (books, transfers, users, messages)
 - In-memory caching for bookshelf counts, sendable books, unread message counts
 
@@ -127,7 +135,7 @@ All entities use UUID primary keys.
 - **MySQL (main)** — users, books, transfers
 - **MySQL (messages)** — message storage for the microservice
 - **message-service REST API** — consumed by the main app via Feign (`http://localhost:8081`)
-- **Spring Security** — route protection and login flow
+- **Spring Security** — open / authenticated / role-authorized routes, CSRF, login/logout flow
 
 ---
 
@@ -243,4 +251,4 @@ JaCoCo reports: `target/site/jacoco/index.html` (each module). Minimum **70% lin
 | `/messages/inbox` | Inbox | Authenticated |
 | `/messages/inbox/{id}` | View inbox message | Authenticated |
 | `/messages/sent` | Sent messages | Authenticated |
-| `/users` | User administration | Admin |
+| `/users` | User administration | Admin (`ADMIN` / `MASTER_ADMIN`) |
