@@ -3,12 +3,10 @@ package app.web;
 import app.exception.AccessDeniedException;
 import app.exception.EmailAlreadyExistsException;
 import app.exception.NotAuthenticatedException;
-import app.mapper.user.UserMapper;
 import app.model.dto.user.MyProfileUpdateRequest;
 import app.model.dto.user.UserSession;
 import app.model.entity.user.Region;
 import app.model.entity.user.UserRole;
-import app.repository.user.UserRepository;
 import app.service.user.UserService;
 import app.service.user.UserSessionService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,14 +33,11 @@ public class MyProfileController {
 
     private final UserService userService;
     private final UserSessionService userSessionService;
-    private final UserRepository userRepository;
 
     public MyProfileController(UserService userService,
-                               UserSessionService userSessionService,
-                               UserRepository userRepository) {
+                               UserSessionService userSessionService) {
         this.userService = userService;
         this.userSessionService = userSessionService;
-        this.userRepository = userRepository;
     }
 
     @ModelAttribute("regions")
@@ -55,8 +50,7 @@ public class MyProfileController {
         UserSession userSession = requireUserSession(session);
 
         if (!model.containsAttribute("myProfileRequest")) {
-            userRepository.findById(userSession.getId())
-                    .map(UserMapper::toMyProfileUpdateRequest)
+            userService.getMyProfileUpdateRequest(userSession.getId())
                     .ifPresent(request -> model.addAttribute("myProfileRequest", request));
         }
 

@@ -159,6 +159,33 @@ class UserServiceTest {
     }
 
     @Test
+    void getMyProfileUpdateRequest_mapsExistingUser() {
+        UUID userId = UUID.randomUUID();
+        User user = user(userId, UserRole.USER);
+        user.setFirstName("Ana");
+        user.setLastName("Ivanova");
+        user.setEmail("alice@example.com");
+        user.setRegion(Region.SOFIA);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        Optional<MyProfileUpdateRequest> request = userService.getMyProfileUpdateRequest(userId);
+
+        assertThat(request).isPresent();
+        assertThat(request.get().getFirstName()).isEqualTo("Ana");
+        assertThat(request.get().getEmail()).isEqualTo("alice@example.com");
+        assertThat(request.get().getRegion()).isEqualTo(Region.SOFIA);
+    }
+
+    @Test
+    void getMyProfileUpdateRequest_returnsEmptyWhenMissing() {
+        UUID userId = UUID.randomUUID();
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        assertThat(userService.getMyProfileUpdateRequest(userId)).isEmpty();
+    }
+
+    @Test
     void deleteAccount_removesRelatedData() {
         UUID userId = UUID.randomUUID();
         when(userRepository.existsById(userId)).thenReturn(true);

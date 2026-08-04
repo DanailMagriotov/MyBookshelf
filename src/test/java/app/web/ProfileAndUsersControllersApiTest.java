@@ -2,11 +2,10 @@ package app.web;
 
 import app.exception.EmailAlreadyExistsException;
 import app.model.dto.user.AdminUserDto;
+import app.model.dto.user.MyProfileUpdateRequest;
 import app.model.dto.user.UserSession;
 import app.model.entity.user.Region;
-import app.model.entity.user.User;
 import app.model.entity.user.UserRole;
-import app.repository.user.UserRepository;
 import app.security.AuthenticationGuard;
 import app.service.user.UserService;
 import app.service.user.UserSessionService;
@@ -50,9 +49,6 @@ class ProfileAndUsersControllersApiTest {
     @Mock
     private UserSessionService userSessionService;
 
-    @Mock
-    private UserRepository userRepository;
-
     private MockMvc profileMockMvc;
     private MockMvc usersMockMvc;
 
@@ -61,7 +57,7 @@ class ProfileAndUsersControllersApiTest {
     @BeforeEach
     void setUp() {
         profileMockMvc = standaloneWithPageable(
-                new MyProfileController(userService, userSessionService, userRepository)).build();
+                new MyProfileController(userService, userSessionService)).build();
         usersMockMvc = standaloneWithPageable(
                 new UsersController(userService, userSessionService, new AuthenticationGuard())).build();
     }
@@ -73,16 +69,13 @@ class ProfileAndUsersControllersApiTest {
     @Test
     void myProfilePage_returnsProfileView() throws Exception {
         var session = authenticatedSession();
-        var user = User.builder()
-                .id(userId)
-                .username("alice")
+        var profileRequest = MyProfileUpdateRequest.builder()
                 .email("alice@example.com")
                 .region(Region.SOFIA)
-                .role(UserRole.USER)
                 .build();
 
         when(userSessionService.get(any())).thenReturn(Optional.of(session));
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userService.getMyProfileUpdateRequest(userId)).thenReturn(Optional.of(profileRequest));
 
         profileMockMvc.perform(get("/my-profile").session(sessionWith(session)))
                 .andExpect(status().isOk())
