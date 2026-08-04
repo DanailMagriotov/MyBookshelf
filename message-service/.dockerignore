@@ -1,0 +1,11 @@
+.git
+.idea
+target
+*.iml
+*.iws
+*.ipr
+Dockerfile
+.dockerignore
+**/.DS_Store
+**/hs_err_*.log
+**/replay_*.log

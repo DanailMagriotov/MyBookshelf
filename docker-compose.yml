@@ -1,0 +1,69 @@
+services:
+  mysql-app:
+    image: mysql:8.0
+    container_name: my-bookshelf-mysql-app
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: my_bookshelf_app
+    ports:
+      - "33060:3306"
+    volumes:
+      - mysql-app-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$$MYSQL_ROOT_PASSWORD\" || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+
+  mysql-messages:
+    image: mysql:8.0
+    container_name: my-bookshelf-mysql-messages
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: my_bookshelf_messages
+    ports:
+      - "33061:3306"
+    volumes:
+      - mysql-messages-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$$MYSQL_ROOT_PASSWORD\" || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+
+  message-service:
+    build:
+      context: ./message-service
+    container_name: my-bookshelf-message-service
+    ports:
+      - "8081:8081"
+    environment:
+      MY_USERNAME: root
+      MY_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-messages:3306/my_bookshelf_messages?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
+    depends_on:
+      mysql-messages:
+        condition: service_healthy
+
+  main-app:
+    build:
+      context: .
+    container_name: my-bookshelf-main
+    ports:
+      - "8080:8080"
+    environment:
+      MY_USERNAME: root
+      MY_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-app:3306/my_bookshelf_app?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
+      MESSAGE_SERVICE_URL: http://message-service:8081
+    depends_on:
+      mysql-app:
+        condition: service_healthy
+      message-service:
+        condition: service_started
+
+volumes:
+  mysql-app-data:
+  mysql-messages-data:
