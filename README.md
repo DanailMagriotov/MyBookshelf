@@ -30,7 +30,10 @@ The main app communicates with the message microservice through a **Feign client
 - **Inter-service communication:** Spring Cloud OpenFeign
 - **Validation:** Jakarta Bean Validation (DTOs, entities, service logic)
 - **Caching & scheduling:** Spring Cache, `@Scheduled` jobs
+- **Events:** Spring Application Events (`@EventListener`)
+- **Export:** Apache POI (Excel `.xlsx`)
 - **Frontend:** Spring MVC + Thymeleaf, CSS, JavaScript
+- **Containerization:** Docker / Docker Compose
 - **Testing:** JUnit 5, Mockito, MockMvc, H2 (test profile), JaCoCo (70% line coverage gate)
 - **Dev tools:** Spring Boot DevTools, Lombok
 
@@ -54,6 +57,7 @@ The main app communicates with the message microservice through a **Feign client
 - Add owned books with title, author, description, category, and price
 - **Edit book** metadata when the book is at home (`my book`) and has no active transfer
 - Delete owned books (delete blocked while a transfer is active)
+- **Export** bookshelf to Excel (`.xlsx`) via `GET /my-bookshelf/export`
 - Visible book counter on home and bookshelf
 
 ### Book transfers
@@ -94,6 +98,12 @@ The main app communicates with the message microservice through a **Feign client
 - Structured logging in service layer (books, transfers, users, messages)
 - In-memory caching for bookshelf counts, sendable books, unread message counts
 
+### Bonus features
+
+- **Spring Events** — `UserRoleChangedEvent` (inbox notification on role change) and `BookSentEvent` (audit log on book transfer)
+- **Excel export** — download the current user's bookshelf as `.xlsx` (Apache POI)
+- **Dockerized setup** — Dockerfiles for both apps + `docker-compose.yml` (2× MySQL, message-service, main app)
+
 ---
 
 ## Domain model
@@ -127,7 +137,8 @@ All entities use UUID primary keys.
 
 - Java 17+
 - Maven 3.9+
-- MySQL 8+
+- MySQL 8+ (local run only; not needed when using Docker Compose)
+- Docker Desktop (optional; for containerized run)
 
 ### Configuration
 
@@ -152,7 +163,7 @@ Main app Feign target (default): `message-service.url=http://localhost:8081`
 
 Scheduling can be disabled in tests via `app.scheduling.enabled=false` (test profile).
 
-### Run
+### Run locally (Maven)
 
 Start **message-service first**, then the main application:
 
@@ -171,6 +182,29 @@ mvn spring-boot:run
 Open [http://localhost:8080](http://localhost:8080) in a browser.
 
 Register the first account to obtain **MASTER_ADMIN**. Start message-service before using messaging features.
+
+### Run with Docker Compose
+
+From the repository root (builds both apps and starts two MySQL instances):
+
+```bash
+docker compose up --build
+```
+
+| Service | Host port |
+|---------|-----------|
+| Main app | [http://localhost:8080](http://localhost:8080) |
+| Message service | [http://localhost:8081](http://localhost:8081) |
+| MySQL (main) | `localhost:33060` |
+| MySQL (messages) | `localhost:33061` |
+
+Default MySQL root password: `root` (override with `MYSQL_ROOT_PASSWORD`).
+
+Stop and remove containers:
+
+```bash
+docker compose down
+```
 
 ### Test
 
@@ -197,7 +231,8 @@ JaCoCo reports: `target/site/jacoco/index.html` (each module). Minimum **70% lin
 | `/` | Landing page | Guest |
 | `/login`, `/register` | Authentication | Guest |
 | `/home` | Navigation hub | Authenticated |
-| `/my-bookshelf` | Book list and actions (edit, delete, return, edit deadline) | Authenticated |
+| `/my-bookshelf` | Book list and actions (edit, delete, return, edit deadline, export) | Authenticated |
+| `/my-bookshelf/export` | Download bookshelf as Excel | Authenticated |
 | `/add-book` | Add a book | Authenticated |
 | `/edit-book/{bookId}` | Edit book metadata | Authenticated (owner, no active transfer) |
 | `/send-book` | Lend a book | Authenticated |
